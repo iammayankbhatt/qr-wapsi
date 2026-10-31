@@ -1,0 +1,13 @@
+{
+  "task_name": "extract_document",
+  "model": "gemini-3.8-flash",
+  "key": "09aff00672fed51558c5f60a87a9a9126eb2950b173958a7623e0417b62fb007",
+  "response": {
+    "doc_type": "OVD",
+    "name": "RAMESH SHARMA",
+    "id_number": "DEMO-0000-1234-5678",
+    "readable": true,
+    "issues": [],
+    "confidence": 0.95
+  }
+}

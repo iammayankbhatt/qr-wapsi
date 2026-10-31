@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "d5ba4804352ca25d9b024bca46b30109576d2c67c9b640ca6c9819c18881091f",
+  "response": {
+    "action": "VERIFY_DOCUMENT",
+    "reason": "Merchant has uploaded PAN document which needs verification.",
+    "confidence": 0.95
+  }
+}

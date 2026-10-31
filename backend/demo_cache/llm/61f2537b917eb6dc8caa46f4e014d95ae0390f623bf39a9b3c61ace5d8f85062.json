@@ -1,0 +1,15 @@
+{
+  "task_name": "extract_document",
+  "model": "gemini-3.8-flash",
+  "key": "61f2537b917eb6dc8caa46f4e014d95ae0390f623bf39a9b3c61ace5d8f85062",
+  "response": {
+    "doc_type": "PAN",
+    "name": "RAMESH SHARMA",
+    "id_number": "ABCPS1234K",
+    "readable": false,
+    "issues": [
+      "blurry"
+    ],
+    "confidence": 0.6
+  }
+}

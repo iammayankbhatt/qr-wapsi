@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "271b793acac7e9e4152e5b7f15003a0420279bd42c2de517e58f8a446b3c70a1",
+  "response": {
+    "action": "SCHEDULE_VISIT",
+    "reason": "All needed documents are accepted, proceed to the required shop visit.",
+    "confidence": 1.0
+  }
+}

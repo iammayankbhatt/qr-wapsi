@@ -1,0 +1,8 @@
+{
+  "task_name": "explain_priority",
+  "model": "gemini-3.8-flash",
+  "key": "d783930fd873e51c12d36e7e970b256dd7923bdf85120d650a495d52546424e7",
+  "response": {
+    "summary_en": "Sharma Kirana Store is prioritized due to 55 paused days, ₹3.2L monthly GMV at risk, and missing PAN and ID proof."
+  }
+}

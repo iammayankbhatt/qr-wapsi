@@ -1,0 +1,35 @@
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = BACKEND_DIR.parent
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=(ROOT_DIR / ".env", BACKEND_DIR / ".env"),
+        extra="ignore",
+    )
+
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-3.8-flash"
+    GEMINI_FALLBACK_MODEL: str = "gemini-3.5-flash-lite"
+    SARVAM_API_KEY: str = ""
+    DEMO_MODE: str = "live"  # live | record | replay
+    TOOL_TRANSPORT: str = "mcp"  # mcp | direct
+    SIM_LATENCY_MS: int = 150  # artificial latency of the mocked integrations (tests set 0)
+
+    DATA_DIR: Path = BACKEND_DIR / "data"
+    DEMO_CACHE_DIR: Path = BACKEND_DIR / "demo_cache"
+
+    @property
+    def db_url(self) -> str:
+        return f"sqlite:///{self.DATA_DIR / 'app.db'}"
+
+    @property
+    def checkpoint_path(self) -> Path:
+        return self.DATA_DIR / "checkpoints.db"
+
+
+settings = Settings()

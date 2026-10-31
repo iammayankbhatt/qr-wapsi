@@ -1,0 +1,79 @@
+Tool 'get_merchant_profile' raised an unexpected exception
+Traceback (most recent call last):
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\venv\Lib\site-packages\mcp\server\mcpserver\tools\base.py", line 179, in run
+    result = await self.fn_metadata.call_fn(self.fn, self.is_async, validated, pass_directly)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\venv\Lib\site-packages\mcp\server\mcpserver\utilities\func_metadata.py", line 164, in call_fn
+    return await anyio.to_thread.run_sync(functools.partial(fn, **kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\app\tools\merchant.py", line 25, in get_merchant_profile
+    m = _merchant(merchant_id)
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\app\tools\merchant.py", line 19, in _merchant
+    raise KeyError(f"merchant {merchant_id} not found")
+KeyError: 'merchant NOPE not found'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\venv\Lib\site-packages\mcp\server\mcpserver\server.py", line 442, in _handle_call_tool
+    return await self.call_tool(params.name, params.arguments or {}, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\venv\Lib\site-packages\mcp\server\mcpserver\server.py", line 548, in call_tool
+    return await self._tool_manager.call_tool(name, arguments, context, convert_result=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\venv\Lib\site-packages\mcp\server\mcpserver\tools\tool_manager.py", line 87, in call_tool
+    return await tool.run(arguments, context, convert_result=convert_result)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ASPIRE 7\Desktop\qr-wapsi\backend\venv\Lib\site-packages\mcp\server\mcpserver\tools\base.py", line 213, in run
+    raise UnexpectedToolError(f"Error executing tool {self.name}") from exc
+mcp.server.mcpserver.exceptions.UnexpectedToolError: Error executing tool get_merchant_profile
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+AFC is enabled with max remote calls: 10.
+LLM call failed model=gemini-3.8-flash attempt=1/3 kind=retry: The read operation timed out
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent "HTTP/1.1 200 OK"
+LLM task=extract_document model=gemini-3.8-flash latency=46913ms cache_hit=False mode=record
+AFC is enabled with max remote calls: 10.
+LLM call failed model=gemini-3.8-flash attempt=1/3 kind=retry: The write operation timed out
+AFC is enabled with max remote calls: 10.
+LLM call failed model=gemini-3.8-flash attempt=2/3 kind=retry: [WinError 10053] An established connection was aborted by the software in your host machine
+AFC is enabled with max remote calls: 10.
+LLM call failed model=gemini-3.8-flash attempt=3/3 kind=retry: The write operation timed out
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 400 Bad Request"
+model gemini-3.5-flash-lite rejected the thinking setting; retrying without it
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent "HTTP/1.1 200 OK"
+LLM task=extract_document model=gemini-3.5-flash-lite latency=72452ms cache_hit=False mode=record
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent "HTTP/1.1 200 OK"
+LLM task=extract_document model=gemini-3.8-flash latency=5166ms cache_hit=False mode=record
+LLM task=extract_document model=cache latency=12ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=3ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=13ms cache_hit=True mode=replay
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent "HTTP/1.1 200 OK"
+LLM task=extract_document model=gemini-3.8-flash latency=7543ms cache_hit=False mode=record
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent "HTTP/1.1 200 OK"
+LLM task=extract_document model=gemini-3.8-flash latency=4848ms cache_hit=False mode=record
+AFC is enabled with max remote calls: 10.
+HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent "HTTP/1.1 200 OK"
+LLM task=extract_document model=gemini-3.8-flash latency=4583ms cache_hit=False mode=record
+LLM task=extract_document model=cache latency=11ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=2ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=2ms cache_hit=True mode=replay

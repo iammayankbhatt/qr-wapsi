@@ -1,0 +1,26 @@
+# Configured to the team's reading of RBI PA Directions 2025, Para 13. Owned by compliance; not legal advice.
+
+# Fuzzy name match (rapidfuzz token_sort_ratio, 0-100) between the merchant's owner name
+# and the name on each accepted identity document / CKYCR record.
+name_match_threshold: 85
+
+# Turnover bands (see seed) that fall outside the small-merchant routes.
+full_cdd_turnover_bands: [ABOVE_40L]
+
+routes:
+  SMALL_MERCHANT:        # turnover <= Rs 40 lakh and not found in CKYCR
+    requirements:
+      - PAN_OR_FORM60_VERIFIED
+      - OVD_COLLECTED
+      - NAME_MATCH
+      - CPV_DONE
+      - NO_OPEN_RISK_FLAG
+  CKYCR:                 # record found in CKYCR
+    requirements:
+      - CKYCR_RECORD_VERIFIED
+      - NAME_MATCH
+      - CPV_DONE
+      - NO_OPEN_RISK_FLAG
+  FULL_CDD:              # turnover > Rs 40 lakh: out of prototype scope, never auto-compliant
+    requirements: []
+    always_human_review: "full due diligence required"

@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "57f6a83728d74e6499c78f9d8742d6252dccfbde520f1db1700e0fcf93c63e35",
+  "response": {
+    "action": "VERIFY_DOCUMENT",
+    "reason": "Merchant has uploaded OVD following accepted PAN, proceeding with document verification.",
+    "confidence": 0.98
+  }
+}
