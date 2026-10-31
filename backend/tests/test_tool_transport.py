@@ -51,3 +51,16 @@ def test_system_endpoint_reports_the_active_transport():
         info = client.get("/api/system").json()
     assert info["tool_transport"]["active"] == "direct"  # tests run with TOOL_TRANSPORT=direct
     assert info["demo_mode"] == "replay"
+
+
+def test_mcp_tool_crash_retries_in_process_only_for_rerunnable_tools(monkeypatch):
+    c = ToolClient("direct")
+    c.active = "mcp"
+
+    def crash(name, args):
+        raise ToolError(f"{name} failed over MCP: Error executing tool")
+
+    monkeypatch.setattr(c, "_call_mcp", crash)
+    assert c.call("get_merchant_profile", merchant_id="M0001")["shop_name"] == "Sharma Kirana Store"
+    with pytest.raises(ToolError):  # side-effecting tools are never silently re-run
+        c.call("send_whatsapp", merchant_id="M0001", text="hi")

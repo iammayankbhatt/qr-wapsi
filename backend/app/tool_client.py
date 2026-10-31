@@ -24,6 +24,12 @@ START_TIMEOUT_S = 30
 CALL_TIMEOUT_S = 120  # check_document may wait on several vision calls
 
 
+# Tools with no external side effects (reads, deterministic checks, a result stored only once it succeeds):
+# safe to re-run in-process if the MCP server process crashes mid-call. Messaging/booking/reactivation tools are not.
+RETRY_DIRECT = {"check_document", "verify_pan", "check_ckycr", "fetch_digilocker_document", "get_merchant_profile",
+                "score_merchant", "find_visit_slot", "run_compliance"}
+
+
 class ToolError(Exception):
     pass
 
@@ -115,8 +121,12 @@ class ToolClient:
         if self.active == "mcp":
             try:
                 return self._call_mcp(name, args)
-            except ToolError:
-                raise
+            except ToolError as e:
+                if name not in RETRY_DIRECT:
+                    raise
+                # The MCP server process crashed inside a tool that is safe to re-run: retry in-process, which
+                # also surfaces the real error (MCP only reports "Error executing tool").
+                log.warning("MCP call %s crashed (%s); retrying in-process", name, e)
             except Exception as e:  # noqa: BLE001  (transport failure, not a tool failure)
                 self.mcp_error = f"{type(e).__name__}: {e}"
                 log.warning("MCP call %s failed (%s); switching to direct tool calls", name, self.mcp_error)
@@ -124,6 +134,7 @@ class ToolClient:
         try:
             return TOOLS[name](**args)
         except Exception as e:
+            log.exception("tool %s failed", name)
             raise ToolError(f"{name} failed: {type(e).__name__}: {e}") from e
 
     def _call_mcp(self, name: str, args: dict) -> dict:
