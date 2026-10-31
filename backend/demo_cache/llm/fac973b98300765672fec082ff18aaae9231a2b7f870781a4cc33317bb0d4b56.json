@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "fac973b98300765672fec082ff18aaae9231a2b7f870781a4cc33317bb0d4b56",
+  "response": {
+    "action": "SCHEDULE_VISIT",
+    "reason": "All documents have been verified, proceeding to schedule the in-person visit.",
+    "confidence": 1.0
+  }
+}

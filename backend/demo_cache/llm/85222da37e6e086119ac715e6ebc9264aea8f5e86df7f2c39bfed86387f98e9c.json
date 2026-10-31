@@ -1,0 +1,8 @@
+{
+  "task_name": "explain_priority",
+  "model": "gemini-3.8-flash",
+  "key": "85222da37e6e086119ac715e6ebc9264aea8f5e86df7f2c39bfed86387f98e9c",
+  "response": {
+    "summary_en": "Chauhan Tea Stall ranks here because it lacks PAN and ID proof, has spent 43 days paused, and misses ₹90 monthly Soundbox collections."
+  }
+}

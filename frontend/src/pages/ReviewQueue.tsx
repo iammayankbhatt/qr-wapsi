@@ -28,7 +28,7 @@ function Evidence({ value }: { value: unknown }): JSX.Element {
   if (Array.isArray(value)) {
     return <span>{value.map((v) => (typeof v === 'object' ? JSON.stringify(v) : String(v))).join(', ') || '—'}</span>
   }
-  return <span>{typeof value === 'number' ? +value.toFixed(3) : String(value)}</span>
+  return <span>{typeof value === 'number' ? (value > 1000 ? `₹${value.toLocaleString('en-IN')}` : +value.toFixed(3)) : String(value)}</span>
 }
 
 function CaseCard({ c }: { c: ReviewCase }) {
@@ -69,12 +69,12 @@ function CaseCard({ c }: { c: ReviewCase }) {
             <input value={reviewer} onChange={(e) => setReviewer(e.target.value)} className="mt-1 block w-full rounded-xl px-3 py-2 text-lg font-normal ring-1 ring-navy/20" />
           </label>
           <label className="block text-base font-semibold">Note
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="Why you decided this"
+            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="Why you decided this (required to reject)"
               className="mt-1 block w-full rounded-xl px-3 py-2 text-lg font-normal ring-1 ring-navy/20" />
           </label>
           <div className="flex gap-3">
             <Button variant="success" className="flex-1" busy={busy === 'APPROVE'} disabled={!reviewer.trim() || !!busy} onClick={() => decide('APPROVE')}>Approve</Button>
-            <Button variant="danger" className="flex-1" busy={busy === 'REJECT'} disabled={!reviewer.trim() || !!busy} onClick={() => decide('REJECT')}>Reject</Button>
+            <Button variant="danger" className="flex-1" busy={busy === 'REJECT'} disabled={!reviewer.trim() || !note.trim() || !!busy} onClick={() => decide('REJECT')}>Reject</Button>
           </div>
           <ErrorNote error={error} />
         </div>
@@ -101,10 +101,12 @@ export default function ReviewQueue() {
           <ul className="divide-y divide-navy/5">
             {decided.data.cases.map((c) => (
               <li key={c.id} className="flex items-center justify-between gap-4 py-3 text-lg">
-                <span><b>{c.shop_name}</b> <span className="text-navy/55">· {c.reason}</span></span>
+                <span className="min-w-0"><b>{c.shop_name}</b> <span className="text-navy/55">· {c.reason}</span>
+                  {c.note && <span className="block text-base italic text-navy/65">“{c.note}”</span>}</span>
                 <span className="whitespace-nowrap">
                   <span className={`rounded-full px-3 py-1 text-base font-semibold ${c.decision === 'APPROVE' ? 'bg-teal text-white' : 'bg-paused text-white'}`}>{c.decision === 'APPROVE' ? 'Approved' : 'Rejected'}</span>
                   <span className="ml-3 text-base text-navy/55">by {c.decided_by?.replace('human:', '')}</span>
+                  <Link to={`/merchant/${c.merchant_id}`} className="ml-3 text-base font-semibold text-teal hover:underline">journey →</Link>
                 </span>
               </li>
             ))}

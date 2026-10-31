@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "956c8699e2d615effcf8a13beaf4461b235b57d8de829319d8c513a52a3bbb3e",
+  "response": {
+    "action": "ESCALATE",
+    "reason": "High mule-risk score of 0.78 requires escalation for manual compliance check.",
+    "confidence": 0.98
+  }
+}

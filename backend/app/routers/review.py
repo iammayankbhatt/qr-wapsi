@@ -36,6 +36,8 @@ class Decide(BaseModel):
 
 @router.post("/{case_id}/decide")
 def decide_case(case_id: int, body: Decide):
+    if body.decision == "REJECT" and not (body.note or "").strip():
+        raise HTTPException(422, "a rejection needs a note explaining why")
     actor = f"human:{body.decided_by.strip()}"
     with Session(engine) as s:
         c = s.get(ReviewCase, case_id)
@@ -52,7 +54,7 @@ def decide_case(case_id: int, body: Decide):
     publish("review.decided", mid, {"case_id": case_id, "decision": body.decision, "decided_by": actor})
     try:
         service.resume(mid, {"type": "review_decided", "case_id": case_id, "decision": body.decision,
-                             "decided_by": actor}, "human_review")
+                             "decided_by": actor, "note": body.note}, "human_review")
     except service.JourneyConflict:
         pass  # case opened outside a journey: the decision is recorded, nothing to resume
     return journey_view(mid)

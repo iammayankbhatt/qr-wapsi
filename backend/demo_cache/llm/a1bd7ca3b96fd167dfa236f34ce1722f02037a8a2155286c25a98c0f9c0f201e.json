@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "a1bd7ca3b96fd167dfa236f34ce1722f02037a8a2155286c25a98c0f9c0f201e",
+  "response": {
+    "action": "VERIFY_DOCUMENT",
+    "reason": "The merchant uploaded the PAN document photo which needs verification.",
+    "confidence": 1.0
+  }
+}

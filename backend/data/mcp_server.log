@@ -128,3 +128,33 @@ LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
 LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
 TTS key=e7c39ef67f2d cache_hit=True mode=replay
 TTS key=4c5ae5fe168a cache_hit=True mode=replay
+TTS key=43747f6c2b38 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+route E04 2026-10-31: 4 stops, optimal, 11.3 km
+TTS key=e7c39ef67f2d cache_hit=True mode=replay
+TTS key=43747f6c2b38 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+route E04 2026-10-31: 4 stops, optimal, 11.3 km
+TTS key=e7c39ef67f2d cache_hit=True mode=replay
+route E01 2026-10-31: 4 stops, optimal, 15.7 km
+!!! REPLAY AUDIO CACHE MISS key=42b984712619 text='Paytm \u0938\u0942\u091a\u0928\u093e: \u0939\u092e\u093e\u0930\u0947 \u0915\u0930\u094d\u092e\u091a\u093e\u0930\u0940 \u0906\u091c \u0926\u094b\u092a\u0939\u0930 2:10 \u092c\u091c\u0947 \u0926\u0941\u0915\u093e\u0928 \u0915\u0940 \u091c\u093e\u0901\u091a ' — no TTS call in replay mode; the Soundbox will use the browser voice. Run scripts/warm_cache.py with DEMO_MODE=record.
+TTS key=43747f6c2b38 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=aaad2215c027 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=3ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+route E04 2026-10-31: 4 stops, optimal, 11.3 km
+TTS key=e7c39ef67f2d cache_hit=True mode=replay
+route E01 2026-10-31: 4 stops, optimal, 15.7 km
+TTS key=42b984712619 cache_hit=True mode=replay
+TTS key=43747f6c2b38 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=aaad2215c027 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=4ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=4ms cache_hit=True mode=replay
+route E04 2026-10-31: 4 stops, optimal, 11.3 km
+TTS key=e7c39ef67f2d cache_hit=True mode=replay
+route E01 2026-10-31: 4 stops, optimal, 15.7 km
+TTS key=42b984712619 cache_hit=True mode=replay

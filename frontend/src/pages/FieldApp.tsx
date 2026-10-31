@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import PhoneFrame from '../components/PhoneFrame'
-import { Button, ErrorNote, Spinner, StatusBadge } from '../components/ui'
+import RouteMap from '../components/RouteMap'
+import { Button, Card, ErrorNote, Spinner, StatusBadge } from '../components/ui'
 import { api, post } from '../lib/api'
 import { useLive } from '../lib/events'
 import { DOC_LABEL, clockTime } from '../lib/format'
@@ -163,8 +164,9 @@ export default function FieldApp() {
   const [picked, setEmpId] = useState<string | null>(null)
   const [open, setOpen] = useState<VisitRow | null>(null)
 
-  // default to the first employee who has a visit today
-  const empId = picked ?? all.data?.visits[0]?.employee_id ?? employees.data?.employees[0]?.id ?? null
+  // default to the employee of the most recently booked open visit (the agent's latest booking)
+  const latest = (all.data?.visits ?? []).filter((v) => !v.completed_at).sort((a, b) => b.id - a.id)[0]
+  const empId = picked ?? latest?.employee_id ?? all.data?.visits[0]?.employee_id ?? employees.data?.employees[0]?.id ?? null
 
   const employee = employees.data?.employees.find((e) => e.id === empId)
   const visits = (all.data?.visits ?? []).filter((v) => v.employee_id === empId).sort((a, b) => a.route_order - b.route_order)
@@ -185,7 +187,7 @@ export default function FieldApp() {
         <span className="font-serif text-3xl font-bold text-navy">Field app</span>
         <span className="ml-4">Only this in-person check satisfies CPV — the agent can book it, never do it.</span>
       </p>
-      <div className="flex items-start justify-center gap-12">
+      <div className="flex items-start gap-8">
         <PhoneFrame header={header}>
           <div className="min-h-full bg-panel">
             {!all.data ? <div className="flex justify-center p-10"><Spinner /></div>
@@ -196,22 +198,13 @@ export default function FieldApp() {
                 </>}
           </div>
         </PhoneFrame>
-        <div className="w-[420px] space-y-5">
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-bold">How the visit is chosen</h2>
-            <ul className="mt-3 space-y-2 text-lg text-navy/75">
-              <li>• The agent reads the shop's payment timestamps and books the <b>quietest open hour</b>, inside field hours (10:00–18:00).</li>
-              <li>• The visit goes to the employee based <b>nearest the shop</b>, in time order on their route.</li>
-              <li>• Documents are verified first, so the visit is a short premises check.</li>
-            </ul>
-          </div>
-          <div className="rounded-2xl bg-navy p-6 text-white shadow-sm">
-            <h2 className="text-2xl font-bold">What the employee confirms</h2>
-            <ul className="mt-3 space-y-2 text-lg text-white/80">
-              <li>📍 Geo-tag within 250 m of the shop</li>
-              <li>📷 Photo of the shop signboard</li>
-              <li>✍️ Personal confirmation, recorded as <span className="font-mono">human:{empId ?? 'E..'}</span> in the audit log</li>
-            </ul>
+        <div className="min-w-0 flex-1 space-y-5">
+          <Card title={employee ? `${employee.name}'s route today` : 'Route'}>
+            {empId && <RouteMap employeeId={empId} highlight={open?.merchant_id} layout="side" />}
+          </Card>
+          <div className="rounded-2xl bg-navy px-6 py-4 text-lg text-white/85 shadow-sm">
+            <b className="text-white">The employee confirms:</b> 📍 geo-tag within 250 m · 📷 signboard photo ·
+            ✍️ personal confirmation, recorded as <span className="font-mono">human:{empId ?? 'E..'}</span>
           </div>
         </div>
       </div>

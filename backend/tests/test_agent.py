@@ -170,10 +170,19 @@ def test_mule_risk_escalates_at_triage_and_only_a_human_clears_it(client):
     mid = first_merchant(lambda m: mule_risk_score(m.risk_features) >= MULE_REVIEW_THRESHOLD and m.turnover_band != "ABOVE_40L")
     v = client.post(f"/api/journeys/{mid}/start").json()
     assert v["waiting_for"]["waiting_for"] == "human_review" and v["qr_status"] == "ESCALATED"
-    assert v["escalation_reason"].startswith("mule-risk score")
+    assert v["escalation_reason"].startswith("mule-risk score") and "payer diversity" in v["escalation_reason"]
+    case = client.get("/api/review").json()["cases"][0]
+    assert case["merchant_id"] == mid and len(case["evidence"]["top_risk_features"]) >= 2  # why, not just a score
     case_id = v["state"]["review_case_id"]
-    assert client.post(f"/api/review/{case_id}/decide", json={"decided_by": "Anjali", "decision": "REJECT"}).json()["step"] == "CLOSED"
-    assert client.get(f"/api/journeys/{mid}").json()["qr_status"] == "PAUSED"
+    r = client.post(f"/api/review/{case_id}/decide", json={"decided_by": "Anjali", "decision": "REJECT"})
+    assert r.status_code == 422  # a rejection must say why
+    v = client.post(f"/api/review/{case_id}/decide", json={"decided_by": "Anjali", "decision": "REJECT",
+                                                          "note": "Payments look like pass-through; refer to risk team"}).json()
+    assert v["step"] == "CLOSED" and v["qr_status"] == "PAUSED"
+    log = {e["action"]: e for e in v["timeline"]}
+    assert log["REVIEW_DECIDED"]["actor"] == "human:Anjali" and log["REVIEW_DECIDED"]["payload"]["decision"] == "REJECT"
+    assert log["JOURNEY_CLOSED"]["payload"]["note"] == "Payments look like pass-through; refer to risk team"
+    assert client.get("/api/review?status=DECIDED").json()["cases"][0]["note"].startswith("Payments look")
 
 
 def test_mule_risk_approved_by_a_human_continues_the_journey(client):
@@ -183,6 +192,9 @@ def test_mule_risk_approved_by_a_human_continues_the_journey(client):
     assert v["waiting_for"]["waiting_for"] in ("shopkeeper", "field_employee")
     flag = next(r for r in evaluate(mid)["results"] if r["requirement"] == "NO_OPEN_RISK_FLAG")
     assert flag["passed"] and "human:Anjali" in flag["detail"]
+    actions = [e["action"] for e in client.get(f"/api/journeys/{mid}").json()["timeline"]]
+    after = actions[actions.index("REVIEW_DECIDED"):]  # the journey moves on after the human's approval
+    assert "DOCUMENT_REQUESTED" in after or "VISIT_BOOKED" in after
 
 
 def test_full_cdd_goes_to_human_review_and_is_never_auto_compliant(client):

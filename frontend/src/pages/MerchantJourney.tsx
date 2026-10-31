@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import AuditLog from '../components/AuditLog'
 import RequirementChecklist from '../components/RequirementChecklist'
+import RouteMap from '../components/RouteMap'
 import Timeline, { stepIndex } from '../components/Timeline'
 import { ActorIcon, Button, Card, ErrorNote, LinkButton, MuleBadge, StatusBadge } from '../components/ui'
 import { api, post } from '../lib/api'
@@ -110,6 +111,9 @@ export default function MerchantJourney() {
   const decisions = j.timeline.filter((e) => e.action === 'DECISION')
   const triage = j.timeline.find((e) => e.action === 'TRIAGED')
   const blocked = j.waiting_for?.waiting_for === 'human_review' ? 'Human review' : j.step === 'CLOSED' ? 'Closed' : null
+  const s = j.state
+  const reached = s.visit_id ? 3 : s.accepted_docs?.length || Object.keys(s.doc_attempts ?? {}).length || s.channel_attempts?.WHATSAPP ? 1 : 0
+  const current = blocked ? reached : stepIndex(j.step, j.started)
 
   async function start() {
     setStarting(true)
@@ -141,7 +145,7 @@ export default function MerchantJourney() {
       </div>
 
       <Card>
-        <Timeline current={stepIndex(j.step, j.started)} blocked={blocked} />
+        <Timeline current={current} blocked={blocked} />
         <div className="mt-6 flex items-center justify-between gap-6 rounded-xl bg-panel px-5 py-4">
           <p className="text-xl font-semibold">{waitingText(j)}</p>
           <div className="flex shrink-0 gap-3">
@@ -155,6 +159,12 @@ export default function MerchantJourney() {
           <p className="mt-4 flex items-start gap-3 text-lg text-navy/75"><ActorIcon actor="llm" size="h-8 w-8" />Why first: “{triage.payload.explanation}”</p>
         )}
       </Card>
+
+      {j.assigned_employee && j.visit_slot && (
+        <Card title="Field visit route" right={<span className="text-base text-navy/55">planned by OR-Tools around each shop's quiet hour</span>}>
+          <RouteMap employeeId={j.assigned_employee} day={j.visit_slot.slice(0, 10)} highlight={id} layout="side" />
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 items-start gap-7">
         <div className="space-y-7">

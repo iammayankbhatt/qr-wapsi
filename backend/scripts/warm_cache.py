@@ -2,7 +2,8 @@
 
 Run (from backend/):
   python scripts/warm_cache.py            record the four fixed Soundbox clips for M0001 (needs SARVAM_API_KEY)
-  python scripts/warm_cache.py --journey  also run the whole finale once in record mode through the API, which
+  python scripts/warm_cache.py --journey  also run the finale and the escalation demo (approve + reject) once in
+                                          record mode through the API, which
                                           records every LLM answer and clip it uses (resets the demo database)
   python scripts/warm_cache.py --check    no network: report which fixed clips are cached
 """
@@ -102,6 +103,13 @@ def run_journey() -> None:
                    json={"employee_id": visit["employee_id"], "lat": visit["lat"], "lng": visit["lng"], "signboard_photo": sign})
         r.raise_for_status()
         print(f"  field visit at {visit['scheduled_at'][11:16]} -> qr_status {r.json()['qr_status']}")
+        # escalation demo: /demo "Trigger a risky merchant" twice, approve the first and reject the second
+        for decision, note in (("APPROVE", None), ("REJECT", "Pass-through pattern: round amounts at night. Refer to the risk team.")):
+            risky = c.post("/api/demo/risky").json()
+            case = next(x for x in c.get("/api/review").json()["cases"] if x["merchant_id"] == risky["merchant_id"])
+            v = c.post(f"/api/review/{case['id']}/decide", json={"decided_by": "A. Mehta (Ops)", "decision": decision, "note": note})
+            v.raise_for_status()
+            print(f"  escalation {risky['merchant_id']} {decision} -> step {v.json()['step']}")
         c.post("/api/demo/reset").raise_for_status()  # leave a clean demo behind
     shutil.rmtree(settings.DATA_DIR / "uploads", ignore_errors=True)
 

@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "1811e3732dfe76a9bbd378ce1c7285670052a469fed5185768623067e33b5e10",
+  "response": {
+    "action": "VERIFY_DOCUMENT",
+    "reason": "OVD photo has been uploaded and needs verification to proceed.",
+    "confidence": 0.99
+  }
+}

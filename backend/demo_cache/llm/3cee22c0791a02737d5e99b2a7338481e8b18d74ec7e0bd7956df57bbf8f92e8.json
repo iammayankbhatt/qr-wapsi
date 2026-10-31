@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "3cee22c0791a02737d5e99b2a7338481e8b18d74ec7e0bd7956df57bbf8f92e8",
+  "response": {
+    "action": "ESCALATE",
+    "reason": "High mule-risk score of 0.82 triggers mandatory escalation.",
+    "confidence": 0.98
+  }
+}

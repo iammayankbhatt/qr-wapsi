@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "a6aef477d28d27b3feb491832478e43c9f5dd464e071e1ebc51cecb3b3a705c6",
+  "response": {
+    "action": "VERIFY_DOCUMENT",
+    "reason": "A PAN photo has been uploaded and needs to be verified.",
+    "confidence": 1.0
+  }
+}

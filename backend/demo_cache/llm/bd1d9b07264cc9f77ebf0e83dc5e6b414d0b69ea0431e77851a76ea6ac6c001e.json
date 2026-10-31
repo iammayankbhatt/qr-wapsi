@@ -1,0 +1,9 @@
+{
+  "task_name": "draft_message",
+  "model": "gemini-3.8-flash",
+  "key": "bd1d9b07264cc9f77ebf0e83dc5e6b414d0b69ea0431e77851a76ea6ac6c001e",
+  "response": {
+    "text_hi": "नमस्ते नवीन जी, Paytm से आपकी दुकान Radhe Fruit & Veg के री-वेरीफिकेशन के लिए दस्तावेज़ सत्यापित हो गए हैं। हमारे प्रतिनिधि रोहित चौहान आज दोपहर 2:10 बजे दुकान की जांच के लिए आएंगे। कृपया दुकान पर उपस्थित रहें।",
+    "text_en": "Hello Naveen ji, your documents for shop re-verification with Paytm are verified. Our representative Rohit Chauhan will visit Radhe Fruit & Veg today at 2:10 PM for a quick check. Please be available at the shop."
+  }
+}

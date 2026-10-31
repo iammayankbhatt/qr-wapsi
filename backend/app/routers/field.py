@@ -13,7 +13,7 @@ from ..config import settings
 from ..db import engine
 from ..events import publish
 from ..models import Employee, Merchant, Visit
-from ..scheduling import distance_km
+from ..scheduling import distance_km, plan_route
 from .journeys import journey_view
 
 router = APIRouter()
@@ -25,6 +25,16 @@ GEO_TOLERANCE_M = 250  # geo-tag must be taken at the shop
 def list_employees():
     with Session(engine) as s:
         return {"employees": [e.model_dump() for e in s.exec(select(Employee).order_by(Employee.id))]}
+
+
+@router.get("/route")
+def employee_route(employee_id: str, day: Optional[date] = None):
+    """The employee's day ordered by OR-Tools (time windows around each quiet hour), with ETAs.
+    Default day: the simulated clock's day."""
+    try:
+        return plan_route(employee_id, day or clock.now().date())
+    except KeyError as e:
+        raise HTTPException(404, str(e)) from e
 
 
 @router.get("/visits")

@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "f4511867c93a593d95cdb04018af3d19a382dae95237535ab3a870db65685d9b",
+  "response": {
+    "action": "REQUEST_DOCUMENT",
+    "reason": "Request clear PAN re-upload after blurry rejection",
+    "confidence": 0.98
+  }
+}

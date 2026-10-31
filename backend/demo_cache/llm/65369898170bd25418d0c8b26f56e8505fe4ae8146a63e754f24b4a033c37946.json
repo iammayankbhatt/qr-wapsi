@@ -1,0 +1,10 @@
+{
+  "task_name": "propose_next_action",
+  "model": "gemini-3.8-flash",
+  "key": "65369898170bd25418d0c8b26f56e8505fe4ae8146a63e754f24b4a033c37946",
+  "response": {
+    "action": "REQUEST_DOCUMENT",
+    "reason": "Merchant needs PAN document and no digital copy is available.",
+    "confidence": 0.95
+  }
+}

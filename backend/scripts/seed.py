@@ -17,7 +17,8 @@ from sqlmodel import Session, SQLModel, select  # noqa: E402
 
 from app.config import settings  # noqa: E402
 from app.db import engine  # noqa: E402
-from app.models import Employee, Journey, Merchant  # noqa: E402
+from app.models import Employee, Journey, Merchant, Visit  # noqa: E402
+from app.scheduling import distance_km, find_quiet_slot, nearest_employee  # noqa: E402
 from app.scoring import mule_risk_score, priority  # noqa: E402
 
 SEED = 20251231
@@ -232,6 +233,39 @@ def generate() -> tuple[list[Merchant], list[Employee]]:
     return merchants, employees
 
 
+PREBOOKED_PER_EMPLOYEE = 3
+MIN_SPREAD_KM = 1.0  # between pre-booked stops and from the employee's base
+
+
+def prebooked_visits(merchants: list[Merchant], employees: list[Employee], day: date) -> list[Visit]:
+    """Each employee's day already holds a few visits to CKYCR merchants (identity on record, only the in-person
+    check left), so the hero's visit joins a real route. One visit per hour, and the hero's employee keeps the
+    15:00 hour free for Sharma Kirana Store's 15:10 slot."""
+    hero = next(m for m in merchants if m.id == HERO_ID)
+    hero_emp = nearest_employee(hero, employees).id
+    taken, visits = {HERO_ID}, []
+    for e in employees:
+        hours: set[int] = {15} if e.id == hero_emp else set()
+        own = [m for m in merchants if m.in_ckycr and m.id not in taken and m.turnover_band != "ABOVE_40L"
+               and mule_risk_score(m.risk_features) < 0.5 and nearest_employee(m, employees).id == e.id]
+        own.sort(key=lambda m: (distance_km(e.home_lat, e.home_lng, m.lat, m.lng), m.id))
+        points: list[tuple[float, float]] = [(e.home_lat, e.home_lng)]
+        for spread_km in (MIN_SPREAD_KM, MIN_SPREAD_KM / 2, 0.0):  # spread stops out; relax in small territories
+            for m in own:
+                if len(points) > PREBOOKED_PER_EMPLOYEE:
+                    break
+                slot = find_quiet_slot(m, day)
+                if m.id in taken or slot is None or slot.hour in hours:
+                    continue
+                if any(distance_km(m.lat, m.lng, *pt) < spread_km for pt in points):
+                    continue
+                visits.append(Visit(merchant_id=m.id, employee_id=e.id, scheduled_at=slot))
+                hours.add(slot.hour)
+                taken.add(m.id)
+                points.append((m.lat, m.lng))
+    return visits
+
+
 def seed_all() -> dict:
     SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
@@ -244,8 +278,14 @@ def seed_all() -> dict:
             s.add(Journey(merchant_id=m.id, current_step="TRIAGE", priority_score=pr.score,
                           priority_reasons=pr.reasons, mule_risk_score=mule_risk_score(m.risk_features),
                           attempts={}))
+        visits = prebooked_visits(merchants, employees, date.today())
+        s.add_all(visits)
+        emp_ids = [e.id for e in employees]
         s.commit()
-    return {"merchants": len(merchants), "employees": len(employees)}
+    from app.scheduling import plan_route
+    for emp_id in emp_ids:  # number each pre-booked day in OR-Tools order
+        plan_route(emp_id, date.today(), persist=True)
+    return {"merchants": len(merchants), "employees": len(emp_ids), "prebooked_visits": len(visits)}
 
 
 def reset_all() -> dict:

@@ -67,7 +67,8 @@ def _summary(state: JourneyState, **extra) -> dict:
 
 
 def _decide(state: JourneyState, point: str, valid: list[str], default: str, why: str, **extra) -> str:
-    return policy.decide(state["merchant_id"], point, _summary(state, **extra), valid, default, why).final
+    # `situation` gives the LLM the same facts the policy used, so its reason matches the evidence
+    return policy.decide(state["merchant_id"], point, _summary(state, situation=why, **extra), valid, default, why).final
 
 
 def _whatsapp(m: Merchant, purpose: str, ctx: dict, attempts: dict) -> dict:
@@ -134,8 +135,10 @@ def triage(state: JourneyState) -> dict:
     out: dict = {"route": route, "needed_docs": needed, "accepted_docs": [], "doc_attempts": {}, "channel_attempts": {},
                  "ladder_rung": 0, "request_kind": "FIRST", "escalation": None, "status": "ACTIVE"}
     if esc:
-        out["escalation"] = {"reason": esc, "resume_to": "after_triage",
-                             "evidence": {"route": route, "mule_risk": score["mule_risk"]}}
+        out["escalation"] = {"reason": esc, "resume_to": "after_triage", "evidence": {
+            "route": route, "mule_risk_score": score["mule_risk"]["score"],
+            "top_risk_features": score["mule_risk"]["top_features"],
+            "risk_features": m.risk_features, "monthly_gmv": m.monthly_gmv, "turnover_band": m.turnover_band}}
         valid, why = ["ESCALATE"], esc
     elif not needed:
         valid, why = ["SCHEDULE_VISIT"], "identity verified via CKYCR; only the in-person check remains"
@@ -374,7 +377,7 @@ def human_review(state: JourneyState) -> dict:
     _log(mid, "EVENT_RECEIVED", {"waiting_for": "human_review", "type": event.get("type"), "decision": decision,
                                  "decided_by": event.get("decided_by"), "case_id": event.get("case_id")})
     if decision != "APPROVE" or state.get("route") == "FULL_CDD":
-        return {"action": "CLOSE"}
+        return {"action": "CLOSE", "event": event}
 
     _set_qr_status(mid, "IN_PROGRESS")
     out: dict = {"escalation": None}
@@ -402,5 +405,7 @@ def closed(state: JourneyState) -> dict:
     mid = state["merchant_id"]
     _set_qr_status(mid, "PAUSED")
     _journey(mid, current_step="CLOSED")
-    _log(mid, "JOURNEY_CLOSED", {"reason": (state.get("escalation") or {}).get("reason")})
+    ev = state.get("event") or {}
+    _log(mid, "JOURNEY_CLOSED", {"reason": (state.get("escalation") or {}).get("reason"), "decision": ev.get("decision"),
+                                 "decided_by": ev.get("decided_by"), "note": ev.get("note")})
     return {"status": "CLOSED", "action": "DONE"}

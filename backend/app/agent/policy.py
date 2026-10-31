@@ -47,7 +47,8 @@ def triage_escalation(route: str, mule: dict) -> Optional[str]:
     if route == "FULL_CDD":
         return "full due diligence required"
     if mule["score"] >= MULE_REVIEW_THRESHOLD:
-        return f"mule-risk score {mule['score']:.2f} ≥ {MULE_REVIEW_THRESHOLD}"
+        drivers = ", ".join(f["label"].lower() for f in mule["top_features"]) or "combined risk signals"
+        return f"mule-risk score {mule['score']:.2f} ≥ {MULE_REVIEW_THRESHOLD}: {drivers}"
     return None
 
 

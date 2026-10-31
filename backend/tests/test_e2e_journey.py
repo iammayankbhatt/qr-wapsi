@@ -73,7 +73,11 @@ def test_finale_path_for_the_hero_merchant(client):
     assert v["step"] == "FIELD_VISIT" and v["visit_slot"].endswith("T15:10:00")
     assert v["assigned_employee"] == "E04"
     visit = next(x for x in client.get("/api/field/visits?employee_id=E04").json()["visits"] if x["merchant_id"] == HERO)
-    assert visit["route_order"] == 1 and visit["completed_at"] is None
+    assert visit["completed_at"] is None
+    route = client.get("/api/field/route?employee_id=E04").json()  # OR-Tools day plan with the pre-booked stops
+    stop = next(x for x in route["stops"] if x["merchant_id"] == HERO)
+    assert route["status"] == "optimal" and len(route["stops"]) > 1
+    assert stop["eta"].endswith("T15:10:00") and stop["order"] == visit["route_order"]
 
     # CPV cannot be skipped: before the field check the rules engine says not compliant
     comp = client.get(f"/api/merchants/{HERO}/compliance").json()
