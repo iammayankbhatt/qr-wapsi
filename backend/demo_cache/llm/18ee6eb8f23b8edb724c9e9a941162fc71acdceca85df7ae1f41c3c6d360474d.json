@@ -4,7 +4,7 @@
   "key": "18ee6eb8f23b8edb724c9e9a941162fc71acdceca85df7ae1f41c3c6d360474d",
   "response": {
     "action": "REQUEST_DOCUMENT",
-    "reason": "PAN is missing and needed as the current document for verification.",
+    "reason": "Initiate verification by requesting the first missing document (PAN) for triage completion.",
     "confidence": 0.95
   }
 }

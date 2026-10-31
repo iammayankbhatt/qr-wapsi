@@ -77,6 +77,13 @@ def _whatsapp(m: Merchant, purpose: str, ctx: dict, attempts: dict) -> dict:
     return {"channel": "WHATSAPP", "purpose": purpose, "source": msg["source"]}
 
 
+def _soundbox(m: Merchant, purpose: str, attempts: dict, **ctx) -> dict:
+    """Speak a fixed Hindi line on the shop's Soundbox (the tool attaches a cached Sarvam clip when one exists)."""
+    res = call_tool("play_soundbox_prompt", merchant_id=m.id, text_hi=messages.soundbox_line(purpose, **ctx))
+    attempts["SOUNDBOX"] = attempts.get("SOUNDBOX", 0) + 1
+    return {"channel": "SOUNDBOX", "purpose": purpose, "source": "sarvam" if res.get("audio_ref") else "browser_voice"}
+
+
 def _book_visit(mid: str) -> Optional[dict]:
     slot = call_tool("find_visit_slot", merchant_id=mid)
     if not slot["found"]:
@@ -155,10 +162,7 @@ def request_document(state: JourneyState) -> dict:
     if kind == "FIRST":
         rung = 0
         if rungs[0] == "SOUNDBOX":
-            msg = messages.compose(m, "SOUNDBOX_ALERT", "SOUNDBOX")
-            call_tool("play_soundbox_prompt", merchant_id=mid, text_hi=msg["text_hi"])
-            attempts["SOUNDBOX"] = attempts.get("SOUNDBOX", 0) + 1
-            sent.append({"channel": "SOUNDBOX", "purpose": "SOUNDBOX_ALERT", "source": msg["source"]})
+            sent.append(_soundbox(m, "OUTREACH", attempts))
         sent.append(_whatsapp(m, "REQUEST_DOCUMENT", ctx, attempts))  # documents always come back on WhatsApp
     elif kind == "RETRY":
         rung = min(rung + 1, len(rungs) - 1)
@@ -184,6 +188,8 @@ def request_document(state: JourneyState) -> dict:
         check = state.get("last_check") or {}
         if kind == "FIX":
             ctx = {"doc_type": check["doc_type"], "fix_hi": check["fix_hi"], "fix_en": check["fix_en"]}
+            if m.has_soundbox:
+                sent.append(_soundbox(m, "DOCUMENT_FIX", attempts, fix_hi=check["fix_hi"]))
         elif kind == "NEXT":
             ctx["done_doc_type"] = check["doc_type"]
         sent.append(_whatsapp(m, purpose, ctx, attempts))
@@ -300,6 +306,8 @@ def schedule_visit(state: JourneyState) -> dict:
 
     attempts = dict(state.get("channel_attempts", {}))
     _whatsapp(m, "CONFIRM_VISIT", {"employee": emp_name, "time": _hhmm(at)}, attempts)
+    if m.has_soundbox:
+        _soundbox(m, "VISIT_BOOKED", attempts, time=_hhmm(at))
     _journey(mid, current_step="FIELD_VISIT", visit_slot=datetime.fromisoformat(at), assigned_employee=emp_id, attempts=attempts)
     return {"visit_id": visit_id, "channel_attempts": attempts, "action": "WAIT_FIELD"}
 

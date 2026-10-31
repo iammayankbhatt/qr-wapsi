@@ -2,13 +2,12 @@
 LLM or agent, can switch a QR back on unless rules_engine.evaluate() says compliant."""
 from sqlmodel import Session, select
 
-from .. import audit, rules_engine
+from .. import audit, rules_engine, voice
+from ..agent.messages import soundbox_line
 from ..db import engine
 from ..events import publish
 from ..integrations.soundbox import SoundboxClient
 from ..models import Merchant, ReviewCase
-
-QR_LIVE_PROMPT_HI = "आपका QR फिर से चालू है।"  # "Aapka QR phir se chalu hai"
 
 
 def run_compliance(merchant_id: str) -> dict:
@@ -38,7 +37,8 @@ def reactivate_qr(merchant_id: str) -> dict:
     publish("merchant.qr_status", merchant_id, {"qr_status": "LIVE", "seal_hash": seal.hash})
     sb = SoundboxClient()
     sb.set_status(merchant_id, "LIVE")
-    sb.speak(merchant_id, QR_LIVE_PROMPT_HI)
+    line = soundbox_line("QR_LIVE")
+    sb.speak(merchant_id, line, voice.synthesize(line))
     return {"ok": True, "qr_status": "LIVE", "seal_hash": seal.hash, "chain_ok": chain["ok"], "compliance": res}
 
 

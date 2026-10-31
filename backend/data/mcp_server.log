@@ -93,3 +93,38 @@ LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
 LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
 LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
 LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=43747f6c2b38 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=aaad2215c027 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=e7c39ef67f2d cache_hit=True mode=replay
+TTS key=4c5ae5fe168a cache_hit=True mode=replay
+TTS key=43747f6c2b38 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=2ms cache_hit=True mode=replay
+TTS key=aaad2215c027 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=e7c39ef67f2d cache_hit=True mode=replay
+TTS key=4c5ae5fe168a cache_hit=True mode=replay
+TTS key=43747f6c2b38 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=aaad2215c027 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=2ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=e7c39ef67f2d cache_hit=True mode=replay
+TTS key=4c5ae5fe168a cache_hit=True mode=replay
+TTS key=43747f6c2b38 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=2ms cache_hit=True mode=replay
+TTS key=aaad2215c027 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=e7c39ef67f2d cache_hit=True mode=replay
+TTS key=4c5ae5fe168a cache_hit=True mode=replay
+TTS key=43747f6c2b38 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=aaad2215c027 cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+LLM task=extract_document model=cache latency=1ms cache_hit=True mode=replay
+TTS key=e7c39ef67f2d cache_hit=True mode=replay
+TTS key=4c5ae5fe168a cache_hit=True mode=replay

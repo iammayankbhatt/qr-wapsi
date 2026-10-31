@@ -1,7 +1,7 @@
 """Shopkeeper contact channels: WhatsApp, Soundbox, IVR."""
 from typing import Optional
 
-from .. import audit
+from .. import audit, voice
 from ..integrations.ivr import IVRClient
 from ..integrations.paytm_data import PaytmDataClient
 from ..integrations.soundbox import SoundboxClient
@@ -16,10 +16,12 @@ def send_whatsapp(merchant_id: str, text_hi: str, text_en: str) -> dict:
 
 
 def play_soundbox_prompt(merchant_id: str, text_hi: str, audio_ref: Optional[str] = None) -> dict:
-    """Speak a Hindi prompt on the shop's Soundbox."""
+    """Speak a Hindi prompt on the shop's Soundbox. Without an audio_ref, a Sarvam clip is synthesized (or taken
+    from the demo cache); if none is available the device falls back to the browser's hi-IN voice."""
     m = PaytmDataClient().get_merchant(merchant_id)
     if m is None or not m.has_soundbox:
         return {"ok": False, "error": "merchant has no Soundbox"}
+    audio_ref = audio_ref or voice.synthesize(text_hi)
     res = SoundboxClient().speak(merchant_id, text_hi, audio_ref)
     audit.log(merchant_id, "agent", "SOUNDBOX_PROMPT_PLAYED", {"text_hi": text_hi, "audio_ref": audio_ref})
     return {"ok": True, **res}

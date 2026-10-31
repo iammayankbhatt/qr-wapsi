@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import clock
 from .config import settings
 from .db import init_db
-from .routers import audit, demo, events, field, journeys, merchants, review
+from .routers import audio, audit, demo, events, field, journeys, merchants, review
 from .tool_client import get_tool_client, shutdown_tool_client
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -92,6 +92,7 @@ for module, prefix in [
     (merchants, "/api/merchants"),
     (journeys, "/api"),
     (audit, "/api/audit"),
+    (audio, "/api/audio"),
     (field, "/api/field"),
     (review, "/api/review"),
     (demo, "/api/demo"),
