@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     SARVAM_API_KEY: str = ""
     DEMO_MODE: str = "live"  # live | record | replay
     TOOL_TRANSPORT: str = "mcp"  # mcp | direct
-    SIM_LATENCY_MS: int = 150  # artificial latency of the mocked integrations (tests set 0)
+    SIM_LATENCY_MS: int = 80  # artificial latency of each mocked integration call (tests set 0)
 
     DATA_DIR: Path = BACKEND_DIR / "data"
     DEMO_CACHE_DIR: Path = BACKEND_DIR / "demo_cache"

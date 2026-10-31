@@ -4,7 +4,7 @@
   "key": "1811e3732dfe76a9bbd378ce1c7285670052a469fed5185768623067e33b5e10",
   "response": {
     "action": "VERIFY_DOCUMENT",
-    "reason": "OVD photo has been uploaded and needs verification to proceed.",
-    "confidence": 0.99
+    "reason": "OVD photo has been uploaded and requires verification.",
+    "confidence": 1.0
   }
 }

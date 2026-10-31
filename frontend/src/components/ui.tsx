@@ -137,6 +137,23 @@ export function actorLabel(actor: string): string {
   return actor.startsWith('human:') ? actor.slice(6) : ACTOR[actorKind(actor)].label
 }
 
+/** Never a blank screen: a spinner while loading, a friendly message (with retry) if loading failed. */
+export function LoadState({ error, onRetry, what = 'this page' }: { error: string | null; onRetry?: () => void; what?: string }) {
+  if (!error) {
+    return <div className="flex items-center justify-center gap-3 py-16 text-xl text-navy/55"><Spinner className="h-6 w-6" />Loading {what}…</div>
+  }
+  return (
+    <div className="mx-auto max-w-2xl rounded-2xl bg-white p-8 text-center shadow-sm">
+      <p className="font-serif text-2xl font-bold">Couldn't load {what}</p>
+      <p className="mt-2 text-lg text-navy/70">{error}</p>
+      <div className="mt-5 flex justify-center gap-3">
+        {onRetry && <Button onClick={onRetry}>Try again</Button>}
+        <LinkButton to="/" variant="ghost">Dashboard</LinkButton>
+      </div>
+    </div>
+  )
+}
+
 export function ErrorNote({ error }: { error: string | null }) {
   if (!error) return null
   return <p className="rounded-xl bg-paused/10 px-4 py-3 text-paused">{error}</p>

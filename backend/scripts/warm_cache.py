@@ -1,11 +1,13 @@
 """Fill backend/demo_cache/ so the finale runs offline with DEMO_MODE=replay.
 
-Run (from backend/):
-  python scripts/warm_cache.py            record the four fixed Soundbox clips for M0001 (needs SARVAM_API_KEY)
-  python scripts/warm_cache.py --journey  also run the finale and the escalation demo (approve + reject) once in
-                                          record mode through the API, which
-                                          records every LLM answer and clip it uses (resets the demo database)
-  python scripts/warm_cache.py --check    no network: report which fixed clips are cached
+Run (from backend/), with GEMINI_API_KEY and SARVAM_API_KEY in .env:
+  python scripts/warm_cache.py               DEMO_MODE=record: reset the demo, run the finale for M0001 and the
+                                             escalation demo (approve + reject) through the API, then replay the same
+                                             path with the network blocked and report any cache miss
+  python scripts/warm_cache.py --prune       the same, then delete cache entries this run did not use
+  python scripts/warm_cache.py --clips-only  only the four fixed Soundbox clips for M0001
+  python scripts/warm_cache.py --check       no network: list what is cached
+Resets the demo database before and after.
 """
 import argparse
 import os
@@ -19,8 +21,10 @@ sys.path.insert(0, str(BACKEND))
 sys.stdout.reconfigure(encoding="utf-8")
 
 parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-parser.add_argument("--journey", action="store_true", help="also run the finale once in record mode (resets the demo)")
-parser.add_argument("--check", action="store_true", help="only report what is cached; never calls an API")
+parser.add_argument("--clips-only", action="store_true", help="only record the four fixed Soundbox clips")
+parser.add_argument("--prune", action="store_true", help="delete cache entries the demo path did not use")
+parser.add_argument("--check", action="store_true", help="only list what is cached; never calls an API")
+parser.add_argument("--journey", action="store_true", help=argparse.SUPPRESS)  # old flag: the full run is now the default
 args = parser.parse_args()
 if not args.check:
     os.environ["DEMO_MODE"] = "record"  # must be set before app.config is imported
@@ -79,8 +83,39 @@ def check_clips() -> int:
     return missing
 
 
+class MissCounter(logging.Handler):
+    """Counts the loud replay-miss warnings llm.py and voice.py log."""
+    def __init__(self):
+        super().__init__(logging.WARNING)
+        self.misses: list[str] = []
+
+    def emit(self, record):
+        if "CACHE MISS" in record.getMessage():
+            self.misses.append(record.getMessage().split(" — ")[0])
+
+
+def list_cache(since: float | None = None) -> list[Path]:
+    """Print every cached key. Entries written before `since` were not used by this run (stale)."""
+    import json
+    stale = []
+    rows = []
+    for p in sorted((settings.DEMO_CACHE_DIR / "llm").glob("*.json")):
+        d = json.loads(p.read_text(encoding="utf-8"))
+        rows.append((p, "llm  ", d["task_name"], d["key"][:16]))
+    for p in sorted((settings.DEMO_CACHE_DIR / "audio").glob("*.wav")):
+        rows.append((p, "audio", "soundbox clip", p.stem[:16]))
+    texts = {voice.audio_key(t): t for _, t in fixed_lines()}
+    for p, kind, task, key in sorted(rows, key=lambda r: (r[1], r[2])):
+        used = since is None or p.stat().st_mtime >= since
+        stale += [] if used else [p]
+        extra = texts.get(p.stem, "") if kind == "audio" else ""
+        print(f"  {kind} {key}…  {task:22s} {'' if used else 'STALE '}{extra}")
+    print(f"  total: {len(rows)} entries ({len(rows) - len(stale)} used by this run, {len(stale)} stale)")
+    return stale
+
+
 def run_journey() -> None:
-    """The finale through the HTTP API in record mode: every LLM call and Soundbox clip lands in demo_cache/."""
+    """The finale through the HTTP API: in record mode every LLM call and Soundbox clip lands in demo_cache/."""
     from fastapi.testclient import TestClient
 
     from app.main import app
@@ -115,13 +150,39 @@ def run_journey() -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.WARNING, format="[%(name)s] %(levelname)s %(message)s")
+    import time
+
+    logging.basicConfig(level=logging.ERROR, format="[%(name)s] %(levelname)s %(message)s")
     if args.check:
-        sys.exit(1 if check_clips() else 0)
-    print(f"DEMO_MODE={settings.DEMO_MODE} · Sarvam key {'set' if settings.SARVAM_API_KEY else 'NOT SET'}")
-    print("Soundbox clips:")
+        missing = check_clips()
+        print("Cached keys:")
+        list_cache()
+        sys.exit(1 if missing else 0)
+    print(f"DEMO_MODE={settings.DEMO_MODE} · Gemini key {'set' if settings.GEMINI_API_KEY else 'NOT SET'} · "
+          f"Sarvam key {'set' if settings.SARVAM_API_KEY else 'NOT SET'}")
+    started = time.time() - 1
+    print("1. Soundbox clips (record):")
     failed = record_clips()
-    if args.journey:
-        print("Finale journey (record mode):")
+    if not args.clips_only:
+        print("2. Finale + escalation demo (record):")
         run_journey()
+        print("3. Same path again in replay mode, network blocked:")
+        from app import netguard
+        settings.DEMO_MODE = "replay"
+        netguard.install()
+        counter = MissCounter()
+        logging.getLogger("qrwapsi").addHandler(counter)
+        run_journey()
+        print(f"  replay cache misses: {len(counter.misses)}")
+        for m in counter.misses:
+            print("   ", m)
+        print(f"  blocked network calls: {netguard.status()['blocked_calls']}")
+        failed += len(counter.misses) + netguard.status()["blocked_calls"]
+    print("Cached keys:")
+    stale = list_cache(None if args.clips_only else started)
+    if args.prune and not args.clips_only and stale:
+        for p in stale:
+            p.unlink()
+        print(f"  pruned {len(stale)} stale entries")
+    print("RESULT:", "OK — the demo is fully cached" if not failed else f"PROBLEMS: {failed}")
     sys.exit(1 if failed else 0)

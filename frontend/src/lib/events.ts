@@ -92,7 +92,7 @@ export function useLive<T>(fetcher: () => Promise<T>, match: (e: LiveEvent) => b
   useEvents((e) => {
     if (e.type === 'demo.reset' || matchRef.current(e)) {
       window.clearTimeout(timer.current)
-      timer.current = window.setTimeout(reload, 200)
+      timer.current = window.setTimeout(reload, 120)
     }
   })
 

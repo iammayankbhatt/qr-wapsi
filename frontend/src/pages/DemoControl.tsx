@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Button, Card, ErrorNote } from '../components/ui'
+import { Button, Card, ErrorNote, LoadState } from '../components/ui'
 import { api, post } from '../lib/api'
 import { useLive } from '../lib/events'
 import { HERO, clockTime } from '../lib/format'
@@ -14,12 +13,18 @@ interface System {
   reachability?: { llm: Probe; sarvam: Probe }
 }
 
-const FINALE = [
-  { label: 'Dashboard: the agent ranks Sharma Kirana Store first and says why', to: '/' },
-  { label: 'Start the journey → Soundbox speaks, Hindi WhatsApp arrives', to: `/merchant/${HERO}` },
-  { label: 'Shop simulator: blurry PAN → specific fix → clear PAN → ID document', to: `/shop/${HERO}` },
-  { label: 'Visit booked at 3:10 PM on Neha Tyagi’s route', to: '/field' },
-  { label: 'Field app: geo-tag, signboard, confirm → QR goes LIVE', to: '/field' },
+/** The five finale steps (CLAUDE.md). Each opens its page in a new tab so the presenter can switch tabs on stage. */
+const DEMO_SCRIPT: { title: string; say: string; open: { label: string; to: string }[] }[] = [
+  { title: 'The agent picks the top priority', say: '1,000 paused merchants; Sharma Kirana Store ranks first and the LLM says why. Click “Start agent journey”.',
+    open: [{ label: 'Dashboard', to: '/' }] },
+  { title: 'Hindi outreach and a document fix', say: 'Enable sound. WhatsApp + Soundbox in Hindi → send the blurry PAN (rejected with a fix) → clear PAN → ID document.',
+    open: [{ label: 'Shop simulator · M0001', to: `/shop/${HERO}` }] },
+  { title: 'Visit booked in the quiet hour', say: 'The agent books 3:10 PM, the shop’s quietest hour, and OR-Tools fits it into Neha Tyagi’s day.',
+    open: [{ label: 'Merchant journey', to: `/merchant/${HERO}` }] },
+  { title: 'In-person check in the field app', say: 'Open the 3:10 PM visit → capture location → signboard photo → confirm → submit.',
+    open: [{ label: 'Field app', to: '/field' }] },
+  { title: 'Rules engine passes → QR live', say: 'Every requirement ticks, the audit record is sealed, the QR flips to Live and the Soundbox says “Aapka QR phir se chalu”.',
+    open: [{ label: 'Merchant journey', to: `/merchant/${HERO}` }, { label: 'Shop simulator', to: `/shop/${HERO}` }] },
 ]
 
 function Dot({ status }: { status: string }) {
@@ -84,7 +89,7 @@ export default function DemoControl() {
         </Card>
 
         <Card title="System status" right={<Button variant="ghost" className="!py-1.5 !text-base" onClick={() => sys.reload()}>Refresh</Button>}>
-          {!s ? <ErrorNote error={sys.error} /> : (
+          {!s ? <LoadState error={sys.error} onRetry={sys.reload} what="system status" /> : (
             <table className="w-full text-lg">
               <tbody className="divide-y divide-navy/5 [&_td:first-child]:w-40 [&_td:first-child]:whitespace-nowrap [&_td:first-child]:pr-4">
                 <tr><td className="py-3 text-navy/60">DEMO_MODE</td><td className="py-3 font-semibold"><Dot status={s.demo_mode === 'replay' ? 'replay' : 'reachable'} /> {s.demo_mode}</td></tr>
@@ -100,13 +105,23 @@ export default function DemoControl() {
         </Card>
       </div>
 
-      <Card title="Finale script">
-        <ol className="space-y-3">
-          {FINALE.map((f, i) => (
-            <li key={i} className="flex items-center gap-4 text-xl">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber font-bold">{i + 1}</span>
-              <span className="flex-1">{f.label}</span>
-              <Link to={f.to} className="font-semibold text-teal hover:underline">open →</Link>
+      <Card title="Demo script" right={<span className="text-base text-navy/55">each button opens a new tab · reset first</span>}>
+        <ol className="space-y-4">
+          {DEMO_SCRIPT.map((step, i) => (
+            <li key={step.title} className="flex items-center gap-5 rounded-xl px-2 py-1">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber text-xl font-bold">{i + 1}</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xl font-semibold">{step.title}</p>
+                <p className="text-base text-navy/65">{step.say}</p>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                {step.open.map((o) => (
+                  <a key={o.label} href={o.to} target="_blank" rel="noopener"
+                    className="inline-flex items-center gap-2 rounded-xl bg-navy px-4 py-2.5 text-base font-semibold text-white hover:bg-navy/90">
+                    {o.label} <span aria-hidden>↗</span>
+                  </a>
+                ))}
+              </div>
             </li>
           ))}
         </ol>

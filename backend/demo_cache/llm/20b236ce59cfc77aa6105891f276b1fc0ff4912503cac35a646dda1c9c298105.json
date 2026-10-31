@@ -3,7 +3,7 @@
   "model": "gemini-3.8-flash",
   "key": "20b236ce59cfc77aa6105891f276b1fc0ff4912503cac35a646dda1c9c298105",
   "response": {
-    "text_hi": "नमस्ते रमेश जी, Paytm से आपकी दुकान Sharma Kirana Store के री-वेरिफिकेशन के लिए आपका PAN कार्ड स्वीकार हो गया है, धन्यवाद। अब कृपया अपने पहचान पत्र (जैसे वोटर आईडी या ड्राइविंग लाइसेंस) की साफ़ फ़ोटो भेजें।",
-    "text_en": "Hello Ramesh ji, for your shop Sharma Kirana Store's re-verification with Paytm, your PAN card is accepted, thank you. Now please share a clear photo of your ID proof (such as a voter ID or driving licence)."
+    "text_hi": "नमस्ते रमेश जी, Paytm से आपकी दुकान शर्मा किराना स्टोर के री-वेरिफिकेशन के लिए PAN कार्ड स्वीकार हो गया है। धन्यवाद! अब कृपया अपने पहचान पत्र (जैसे वोटर आईडी या ड्राइविंग लाइसेंस) की एक साफ़ फ़ोटो भेजें।",
+    "text_en": "Hello Ramesh ji, your PAN card has been accepted for your shop Sharma Kirana Store's Paytm re-verification. Thank you! Now, please share a clear photo of your ID proof (such as a voter ID or driving licence)."
   }
 }

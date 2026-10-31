@@ -4,7 +4,7 @@ import AuditLog from '../components/AuditLog'
 import RequirementChecklist from '../components/RequirementChecklist'
 import RouteMap from '../components/RouteMap'
 import Timeline, { stepIndex } from '../components/Timeline'
-import { ActorIcon, Button, Card, ErrorNote, LinkButton, MuleBadge, StatusBadge } from '../components/ui'
+import { ActorIcon, Button, Card, ErrorNote, LinkButton, LoadState, MuleBadge, StatusBadge } from '../components/ui'
 import { api, post } from '../lib/api'
 import { useLive } from '../lib/events'
 import { DOC_LABEL, clockTime, inr, stamp } from '../lib/format'
@@ -106,7 +106,7 @@ export default function MerchantJourney() {
 
   const j = journey.data
   const m = profile.data
-  if (!j || !m) return <ErrorNote error={journey.error ?? profile.error} />
+  if (!j || !m) return <LoadState error={journey.error ?? profile.error} onRetry={() => { journey.reload(); profile.reload() }} what={`merchant ${id}`} />
 
   const decisions = j.timeline.filter((e) => e.action === 'DECISION')
   const triage = j.timeline.find((e) => e.action === 'TRIAGED')

@@ -1,9 +1,0 @@
-{
-  "task_name": "draft_message",
-  "model": "gemini-3.8-flash",
-  "key": "5c174700a0fd18eef750375b21cc9502ebdb86e3de19f6a6c322f79c3f44c381",
-  "response": {
-    "text_hi": "नमस्ते रमेश जी, Paytm से आपकी दुकान Sharma Kirana Store के री-वेरीफिकेशन (re-KYC) के लिए हमें आपके पैन कार्ड (PAN card) की एक साफ़ फोटो की ज़रूरत है। कृपया Paytm for Business ऐप में इसे तुरंत अपलोड करें।",
-    "text_en": "Hello Ramesh ji, for re-verification (re-KYC) of your shop Sharma Kirana Store with Paytm, we need a clear photo of your PAN card. Please upload it promptly in the Paytm for Business app."
-  }
-}

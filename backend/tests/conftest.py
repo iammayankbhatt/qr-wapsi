@@ -7,12 +7,20 @@ os.environ["DATA_DIR"] = _TMP
 os.environ["DEMO_MODE"] = "replay"
 os.environ["TOOL_TRANSPORT"] = "direct"  # tests/test_tool_transport.py exercises MCP explicitly
 os.environ["SIM_LATENCY_MS"] = "0"
+# Network off: no API keys, a dead proxy for subprocesses (the MCP server) and the offline guard below.
+os.environ["GEMINI_API_KEY"] = ""
+os.environ["SARVAM_API_KEY"] = ""
+os.environ["HTTPS_PROXY"] = os.environ["HTTP_PROXY"] = "http://127.0.0.1:9"
+os.environ["NO_PROXY"] = "127.0.0.1,localhost,testserver"
 
 import pytest  # noqa: E402
 from sqlalchemy import text  # noqa: E402
 from sqlmodel import Session  # noqa: E402
 
+from app import netguard  # noqa: E402
 from app.db import engine  # noqa: E402
+
+netguard.install()  # any test that reaches for the network fails at once
 from app.models import Merchant  # noqa: E402
 from scripts.seed import seed_all  # noqa: E402
 

@@ -266,32 +266,66 @@ def prebooked_visits(merchants: list[Merchant], employees: list[Employee], day: 
     return visits
 
 
-def seed_all() -> dict:
-    SQLModel.metadata.drop_all(engine)
-    SQLModel.metadata.create_all(engine)
-    merchants, employees = generate()
-    with Session(engine) as s:
-        s.add_all(employees)
+_rows_cache: dict = {}
+
+
+def _seed_rows(day: date) -> dict:
+    """Plain rows for every table, generated once per day: the data is deterministic (fixed seed), so a demo reset
+    only bulk-inserts them instead of rebuilding 2,000 ORM objects."""
+    if _rows_cache.get("day") != day:
+        merchants, employees = generate()
+        journeys = []
         for m in merchants:
-            s.add(m)
             pr = priority(m)
-            s.add(Journey(merchant_id=m.id, current_step="TRIAGE", priority_score=pr.score,
-                          priority_reasons=pr.reasons, mule_risk_score=mule_risk_score(m.risk_features),
-                          attempts={}))
-        visits = prebooked_visits(merchants, employees, date.today())
-        s.add_all(visits)
-        emp_ids = [e.id for e in employees]
-        s.commit()
+            journeys.append(dict(merchant_id=m.id, current_step="TRIAGE", priority_score=pr.score,
+                                 priority_reasons=pr.reasons, mule_risk_score=mule_risk_score(m.risk_features),
+                                 attempts={}))
+        visits = prebooked_visits(merchants, employees, day)
+        _rows_cache.clear()
+        _rows_cache.update(
+            day=day,
+            merchants=[m.model_dump() for m in merchants],
+            employees=[e.model_dump() for e in employees],
+            journeys=journeys,
+            visits=[v.model_dump(exclude={"id"}) for v in visits],
+        )
+    return _rows_cache
+
+
+def seed_all(rebuild: bool = False) -> dict:
+    """Replace all data with today's synthetic seed.
+
+    Default (the demo's Reset button): keep the tables and swap every row in ONE transaction, so a screen that is
+    reading at that moment sees the old data or the new data, never a missing table. rebuild=True drops and
+    recreates the tables first (schema changes; the command-line seed)."""
+    from sqlalchemy import insert
+
+    from app.models import utcnow
     from app.scheduling import plan_route
-    for emp_id in emp_ids:  # number each pre-booked day in OR-Tools order
-        plan_route(emp_id, date.today(), persist=True)
-    return {"merchants": len(merchants), "employees": len(emp_ids), "prebooked_visits": len(visits)}
+
+    today = date.today()
+    rows = _seed_rows(today)
+    if rebuild:
+        SQLModel.metadata.drop_all(engine)
+    SQLModel.metadata.create_all(engine)
+    now = utcnow()
+    with engine.begin() as c:  # bulk inserts (executemany): ~10x faster than adding ORM objects
+        if not rebuild:
+            for table in reversed(SQLModel.metadata.sorted_tables):
+                c.execute(table.delete())
+        c.execute(insert(Employee.__table__), rows["employees"])
+        c.execute(insert(Merchant.__table__), rows["merchants"])
+        c.execute(insert(Journey.__table__), [{**j, "created_at": now, "updated_at": now} for j in rows["journeys"]])
+        c.execute(insert(Visit.__table__), rows["visits"])
+    for e in rows["employees"]:  # number each pre-booked day in OR-Tools order
+        plan_route(e["id"], today, persist=True)
+    return {"merchants": len(rows["merchants"]), "employees": len(rows["employees"]), "prebooked_visits": len(rows["visits"])}
 
 
-def reset_all() -> dict:
+def reset_all(rebuild: bool = False) -> dict:
     """Full demo reset: reseed (this also empties audit log, review cases, documents, visits),
     clear uploads and LangGraph checkpoints."""
-    counts = seed_all()
+    counts = seed_all(rebuild)
     uploads = settings.DATA_DIR / "uploads"
     shutil.rmtree(uploads, ignore_errors=True)
     uploads.mkdir(parents=True, exist_ok=True)
@@ -312,7 +346,7 @@ def reset_all() -> dict:
 if __name__ == "__main__":
     from collections import Counter
 
-    print("seeded:", reset_all())
+    print("seeded:", reset_all(rebuild=True))
     with Session(engine) as s:
         ms = s.exec(select(Merchant)).all()
         js = {j.merchant_id: j for j in s.exec(select(Journey)).all()}

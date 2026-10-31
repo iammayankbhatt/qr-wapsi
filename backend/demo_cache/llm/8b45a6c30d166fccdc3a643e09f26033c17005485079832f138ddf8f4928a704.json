@@ -1,9 +1,0 @@
-{
-  "task_name": "draft_message",
-  "model": "gemini-3.8-flash",
-  "key": "8b45a6c30d166fccdc3a643e09f26033c17005485079832f138ddf8f4928a704",
-  "response": {
-    "text_hi": "पेटीएम सूचना: दुकान के री-वेरीफिकेशन के लिए आपका क्यूआर रोक दिया गया है। कृपया री-वेरीफिकेशन पूरा करने के लिए पेटीएम द्वारा भेजा गया व्हाट्सएप संदेश देखें।",
-    "text_en": "Paytm alert: Your QR is paused for shop re-verification. Please check the WhatsApp message sent by Paytm to complete the re-verification."
-  }
-}

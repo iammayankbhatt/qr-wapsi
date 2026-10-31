@@ -21,6 +21,8 @@ _graph = None
 _conn: Optional[sqlite3.Connection] = None
 _graph_lock = threading.Lock()
 _merchant_locks: defaultdict[str, threading.Lock] = defaultdict(threading.Lock)
+# Held while any journey step runs and while the demo resets, so a reset never wipes tables under a running step.
+run_lock = threading.RLock()
 
 
 class JourneyConflict(Exception):
@@ -87,18 +89,19 @@ def start(mid: str) -> dict:
     """Start a journey, or continue one interrupted by a crash. Starting an active journey is a no-op."""
     g = get_graph()
     with _merchant_locks[mid]:
-        snap = g.get_state(_cfg(mid))
-        if not snap.values:
-            g.invoke({"merchant_id": mid}, _cfg(mid))
-        elif snap.next and _waiting(snap) is None:
-            g.invoke(None, _cfg(mid))  # a node failed mid-run (e.g. server stopped): retry it
+        with run_lock:
+            snap = g.get_state(_cfg(mid))
+            if not snap.values:
+                g.invoke({"merchant_id": mid}, _cfg(mid))
+            elif snap.next and _waiting(snap) is None:
+                g.invoke(None, _cfg(mid))  # a node failed mid-run (e.g. server stopped): retry it
     return _settled(mid)
 
 
 def resume(mid: str, event: dict[str, Any], expect: str) -> dict:
     """Deliver an event to a journey that is waiting for `expect` (shopkeeper | field_employee | human_review)."""
     g = get_graph()
-    with _merchant_locks[mid]:
+    with _merchant_locks[mid], run_lock:
         waiting = _waiting(g.get_state(_cfg(mid)))
         if waiting is None or waiting.get("waiting_for") != expect:
             now = waiting.get("waiting_for") if waiting else "nothing"

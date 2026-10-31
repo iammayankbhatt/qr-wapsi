@@ -11,6 +11,8 @@ try:  # mcp 1.x
 except ImportError:  # mcp 2.x renamed FastMCP to MCPServer; same decorator/add_tool/run API
     from mcp.server.mcpserver import MCPServer as FastMCP
 
+from . import netguard
+from .config import settings
 from .db import init_db
 from .tools import TOOLS
 
@@ -21,6 +23,8 @@ for _name, _fn in TOOLS.items():
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, stream=sys.stderr, format="[mcp-server] %(levelname)s %(name)s %(message)s")
+    if settings.DEMO_MODE == "replay":
+        netguard.install()
     init_db()
     server.run("stdio")
 

@@ -1,3 +1,5 @@
+import time
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
@@ -28,10 +30,12 @@ SPECIMENS = {
 def reset():
     """Reseed merchants and clear audit log, review cases, documents, visits, chat, uploads and agent checkpoints;
     the simulated clock goes back to today 10:30."""
-    counts = reset_all()
-    now = clock.reset()
+    started = time.perf_counter()
+    with service.run_lock:  # waits for a running journey step; nothing runs while tables are rebuilt
+        counts = reset_all()
+        now = clock.reset()
     publish("demo.reset", None, {"clock": now.isoformat()})
-    return {"status": "ok", **counts, "clock": now.isoformat()}
+    return {"status": "ok", **counts, "clock": now.isoformat(), "seconds": round(time.perf_counter() - started, 2)}
 
 
 @router.get("/clock")
@@ -57,7 +61,13 @@ class NoReply(BaseModel):
 
 @router.post("/no-reply")
 def simulate_no_reply(body: NoReply = NoReply()):
-    """The shopkeeper stays silent for the retry delay: the clock moves and only this journey climbs the ladder."""
+    """The shopkeeper stays silent for the retry delay: the clock moves and only this journey climbs the ladder.
+    Refused (and the clock left alone) unless the journey is waiting on the shopkeeper: moving the clock past the
+    hero's 15:10 slot before its visit is booked would push that visit to tomorrow."""
+    waiting = (service.snapshot(body.merchant_id)["waiting"] or {}).get("waiting_for")
+    if waiting != "shopkeeper":
+        raise HTTPException(409, f"journey {body.merchant_id} is not waiting for the shopkeeper "
+                                 f"({'not started' if waiting is None else 'waiting for ' + waiting}); the clock was not moved")
     now = clock.advance(policy.RETRY_AFTER_H)
     publish("clock.advanced", None, {"now": now.isoformat(), "hours": policy.RETRY_AFTER_H})
     try:

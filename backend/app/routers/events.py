@@ -14,7 +14,7 @@ from ..models import Event
 
 router = APIRouter()
 
-POLL_S = 0.5
+POLL_S = 0.25
 
 
 def _fetch(after: int, merchant_id: Optional[str] = None, limit: int = 200) -> list[dict]:
@@ -35,7 +35,9 @@ def _last_id() -> int:
 async def stream(request: Request, since: Optional[int] = None, merchant_id: Optional[str] = None):
     """SSE stream. Starts after `since`, the Last-Event-ID header, or (by default) the newest event."""
     header = request.headers.get("last-event-id")
-    after = since if since is not None else int(header) if header and header.isdigit() else await run_in_threadpool(_last_id)
+    newest = await run_in_threadpool(_last_id)
+    after = since if since is not None else int(header) if header and header.isdigit() else newest
+    after = min(after, newest)  # a reconnect after a demo reset must not replay the new table's events
 
     async def gen():
         nonlocal after
@@ -43,7 +45,11 @@ async def stream(request: Request, since: Optional[int] = None, merchant_id: Opt
         # first body bytes, which would otherwise leave the browser "connecting" until the first ping.
         yield ServerSentEvent(comment="connected", retry=2000)
         while not await request.is_disconnected():
-            for e in await run_in_threadpool(_fetch, after, merchant_id):
+            rows = await run_in_threadpool(_fetch, after, merchant_id)
+            if not rows and after and await run_in_threadpool(_last_id) < after:
+                after = 0  # the demo was reset while we streamed: event ids started again from 1
+                continue
+            for e in rows:
                 after = e["id"]
                 yield {"id": str(e["id"]), "event": e["type"], "data": json.dumps(e, ensure_ascii=False)}
             await asyncio.sleep(POLL_S)

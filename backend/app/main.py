@@ -1,27 +1,49 @@
 import logging
 import time
+import uuid
 from contextlib import asynccontextmanager
 
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
-from . import clock
+from . import clock, netguard
 from .config import settings
 from .db import init_db
 from .routers import audio, audit, demo, events, field, journeys, merchants, review
 from .tool_client import get_tool_client, shutdown_tool_client
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+log = logging.getLogger("qrwapsi.api")
+SLOW_REQUEST_MS = 1000
+
+if settings.DEMO_MODE == "replay":
+    netguard.install()  # replay must work with Wi-Fi off: any network call fails fast and is logged
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
     await run_in_threadpool(get_tool_client)  # starts the MCP tool server once (falls back to direct)
+    await run_in_threadpool(_warm_up)
     yield
     await run_in_threadpool(shutdown_tool_client)
+
+
+def _warm_up() -> None:
+    """Pay one-time costs at startup, not on the presenter's first click: compile the journey graph and
+    build today's seed rows (used by every demo reset)."""
+    from datetime import date
+
+    from scripts.seed import _seed_rows
+
+    from .agent import service
+    started = time.perf_counter()
+    service.get_graph()
+    _seed_rows(date.today())
+    log.info("warm-up done in %.1f s", time.perf_counter() - started)
 
 
 app = FastAPI(title="QR Wapsi", lifespan=lifespan)
@@ -32,6 +54,26 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def timing(request: Request, call_next):
+    started = time.perf_counter()
+    response = await call_next(request)
+    ms = (time.perf_counter() - started) * 1000
+    response.headers["X-Response-Time-ms"] = f"{ms:.0f}"
+    if ms > SLOW_REQUEST_MS and request.url.path != "/api/events":
+        log.warning("slow request %s %s took %.0f ms", request.method, request.url.path, ms)
+    return response
+
+
+@app.exception_handler(Exception)
+async def unhandled_error(request: Request, exc: Exception):
+    """Full traceback to the server log; a short, friendly message (with an id to find it) to the screen."""
+    err_id = uuid.uuid4().hex[:8]
+    log.error("unhandled error %s on %s %s", err_id, request.method, request.url.path, exc_info=exc)
+    return JSONResponse(status_code=500, content={
+        "detail": f"Something went wrong on the server (error {err_id}). The full error is in the server log."})
 
 
 @app.get("/api/health")
@@ -82,7 +124,7 @@ def system(probe: bool = False):
     out = {"tool_transport": get_tool_client().info(), "demo_mode": settings.DEMO_MODE,
            "llm": {"model": settings.GEMINI_MODEL, "fallback_model": settings.GEMINI_FALLBACK_MODEL,
                    "key_set": bool(settings.GEMINI_API_KEY)},
-           "sim_clock": clock.now().isoformat()}
+           "sim_clock": clock.now().isoformat(), "offline_guard": netguard.status()}
     if probe:
         out["reachability"] = {"llm": _cached_probe("llm", _probe_llm), "sarvam": _cached_probe("sarvam", _probe_sarvam)}
     return out

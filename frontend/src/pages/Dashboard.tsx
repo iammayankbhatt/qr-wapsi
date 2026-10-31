@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ReasonChips from '../components/ReasonChips'
-import { ActorIcon, Button, Card, ErrorNote, LinkButton, MuleBadge, StatusBadge, actorLabel } from '../components/ui'
+import { ActorIcon, Button, Card, ErrorNote, LinkButton, LoadState, MuleBadge, StatusBadge, actorLabel } from '../components/ui'
 import { api, post } from '../lib/api'
 import { useLive } from '../lib/events'
 import { describe, inr, stamp } from '../lib/format'
@@ -86,11 +86,11 @@ function TopMerchant({ item, total, onStart, busy }: { item: QueueItem; total: n
 }
 
 function Queue() {
-  const { data, error } = useLive(() => api<{ total: number; items: QueueItem[] }>('/queue?limit=10'),
+  const { data, error, reload } = useLive(() => api<{ total: number; items: QueueItem[] }>('/queue?limit=10'),
     (e) => e.type === 'merchant.qr_status' || e.type === 'journey.updated')
   const { start, busy, error: startError } = useStart()
   const navigate = useNavigate()
-  if (!data) return <ErrorNote error={error} />
+  if (!data) return <LoadState error={error} onRetry={reload} what="the priority queue" />
   const [top] = data.items
   return (
     <div className="space-y-6">

@@ -4,7 +4,7 @@
   "key": "a6aef477d28d27b3feb491832478e43c9f5dd464e071e1ebc51cecb3b3a705c6",
   "response": {
     "action": "VERIFY_DOCUMENT",
-    "reason": "A PAN photo has been uploaded and needs to be verified.",
+    "reason": "A PAN photo has been received and must be validated.",
     "confidence": 1.0
   }
 }

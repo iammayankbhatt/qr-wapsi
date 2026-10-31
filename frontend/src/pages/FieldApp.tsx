@@ -4,7 +4,7 @@ import PhoneFrame from '../components/PhoneFrame'
 import RouteMap from '../components/RouteMap'
 import { Button, Card, ErrorNote, Spinner, StatusBadge } from '../components/ui'
 import { api, post } from '../lib/api'
-import { useLive } from '../lib/events'
+import { useEvents, useLive } from '../lib/events'
 import { DOC_LABEL, clockTime } from '../lib/format'
 import type { DocumentRow, Employee, JourneyView, Specimen, VisitRow } from '../lib/types'
 
@@ -77,7 +77,7 @@ function VisitScreen({ visit, employee, onBack }: { visit: VisitRow; employee: E
     window.setTimeout(() => { // simulated GPS fix a few metres from the shop's registered location
       setGeo({ lat: +(visit.lat + 0.00006).toFixed(6), lng: +(visit.lng + 0.00005).toFixed(6), m: 8 })
       setLocating(false)
-    }, 900)
+    }, 400)
   }
 
   async function submit() {
@@ -163,6 +163,7 @@ export default function FieldApp() {
   const all = useLive(() => api<{ day: string; visits: VisitRow[] }>('/field/visits'), (e) => e.type.startsWith('visit.'))
   const [picked, setEmpId] = useState<string | null>(null)
   const [open, setOpen] = useState<VisitRow | null>(null)
+  useEvents((e) => { if (e.type === 'demo.reset') { setOpen(null); setEmpId(null) } })
 
   // default to the employee of the most recently booked open visit (the agent's latest booking)
   const latest = (all.data?.visits ?? []).filter((v) => !v.completed_at).sort((a, b) => b.id - a.id)[0]

@@ -1,4 +1,6 @@
-import { NavLink, Route, Routes } from 'react-router-dom'
+import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import ErrorBoundary from './components/ErrorBoundary'
+import Toaster from './components/Toaster'
 import { api } from './lib/api'
 import { useConnection, useLive } from './lib/events'
 import { HERO, clockTime } from './lib/format'
@@ -53,11 +55,23 @@ function Nav() {
   )
 }
 
+function NotFound() {
+  return (
+    <section className="mx-auto mt-10 max-w-2xl rounded-2xl bg-white p-8 text-center shadow-sm">
+      <p className="font-serif text-3xl font-bold">Page not found</p>
+      <Link to="/" className="mt-4 inline-block text-lg font-semibold text-teal underline">Go to the dashboard</Link>
+    </section>
+  )
+}
+
 export default function App() {
+  const { pathname } = useLocation()
   return (
     <div className="min-h-screen">
       <Nav />
+      <Toaster />
       <main className="mx-auto max-w-[1400px] px-8 py-8">
+        <ErrorBoundary key={pathname}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/merchant/:id" element={<MerchantJourney />} />
@@ -65,7 +79,9 @@ export default function App() {
           <Route path="/field" element={<FieldApp />} />
           <Route path="/review" element={<ReviewQueue />} />
           <Route path="/demo" element={<DemoControl />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
+        </ErrorBoundary>
       </main>
     </div>
   )

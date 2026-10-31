@@ -4,7 +4,7 @@
   "key": "f1090872c3c5cceb6dd3109e41febb0901e6314d8fde6ce398013ee850c16216",
   "response": {
     "action": "RUN_COMPLIANCE",
-    "reason": "All documents have been accepted and the in-person field visit is complete, ready for compliance checks.",
-    "confidence": 0.98
+    "reason": "Field visit is completed and all required documents are accepted.",
+    "confidence": 1.0
   }
 }
