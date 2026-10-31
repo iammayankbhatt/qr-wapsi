@@ -21,6 +21,12 @@ router = APIRouter()
 GEO_TOLERANCE_M = 250  # geo-tag must be taken at the shop
 
 
+@router.get("/employees")
+def list_employees():
+    with Session(engine) as s:
+        return {"employees": [e.model_dump() for e in s.exec(select(Employee).order_by(Employee.id))]}
+
+
 @router.get("/visits")
 def list_visits(employee_id: Optional[str] = None, day: Optional[date] = None):
     """A field employee's route: visits for one day (default: the simulated clock's day) in route order."""

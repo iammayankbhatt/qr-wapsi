@@ -3,9 +3,22 @@
 @tailwind utilities;
 
 body {
-  @apply bg-panel text-navy font-sans text-lg;
+  @apply bg-panel font-sans text-lg text-navy antialiased;
 }
 
 h1, h2, h3 {
   @apply font-serif;
 }
+
+/* Soundbox speaker bars */
+@keyframes eq {
+  0%, 100% { height: 14px; }
+  50% { height: 88px; }
+}
+
+/* New rows in live feeds */
+@keyframes flash-in {
+  from { background-color: rgba(242, 169, 59, 0.35); transform: translateY(-6px); opacity: 0; }
+  to { background-color: transparent; transform: none; opacity: 1; }
+}
+.flash-in { animation: flash-in 0.9s ease-out; }

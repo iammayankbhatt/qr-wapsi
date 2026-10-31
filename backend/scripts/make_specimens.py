@@ -1,7 +1,7 @@
 """Generate fictional specimen ID images for the demo (Pillow only).
 
 Run:  python scripts/make_specimens.py     (from backend/)
-Outputs backend/demo_assets/{pan_sharp,pan_blurry,ovd_sharp}.jpg
+Outputs backend/demo_assets/{pan_sharp,pan_blurry,ovd_sharp,signboard_sample}.jpg
 
 Everything here is invented: no government names, emblems or logos, and a large
 "SPECIMEN — DEMO ONLY" watermark across each card.
@@ -89,6 +89,22 @@ def ovd_card() -> Image.Image:
     return img
 
 
+def signboard() -> Image.Image:
+    """Fictional shop front: a painted signboard over a shutter, as a field employee would photograph it."""
+    img = Image.new("RGB", (W, H), (176, 170, 160))
+    d = ImageDraw.Draw(img)
+    rnd = random.Random(3)
+    for y in range(300, H, 18):  # rolling shutter
+        d.rectangle([80, y, W - 80, y + 12], fill=(150, 152, 158))
+    d.rectangle([60, 60, W - 60, 280], fill=(196, 32, 38), outline=(120, 15, 20), width=8)
+    d.text((W // 2, 140), "SHARMA KIRANA STORE", font=font(70, True), fill=(255, 236, 160), anchor="mm")
+    d.text((W // 2, 220), "General Provisions  ·  Sector 62, Noida", font=font(34), fill="white", anchor="mm")
+    for _ in range(4000):
+        x, y = rnd.randrange(W), rnd.randrange(H)
+        d.point((x, y), fill=(rnd.randrange(90, 200),) * 3)
+    return img
+
+
 def watermark(img: Image.Image) -> Image.Image:
     """Large semi-transparent diagonal text, repeated so no crop can remove it."""
     layer = Image.new("RGBA", (W * 2, H * 2), (0, 0, 0, 0))
@@ -115,7 +131,8 @@ def main() -> None:
     pan.save(OUT_DIR / "pan_sharp.jpg", quality=93)
     pan.filter(ImageFilter.GaussianBlur(radius=7)).save(OUT_DIR / "pan_blurry.jpg", quality=93)
     watermark(ovd_card()).save(OUT_DIR / "ovd_sharp.jpg", quality=93)
-    for name in ("pan_sharp", "pan_blurry", "ovd_sharp"):
+    watermark(signboard()).save(OUT_DIR / "signboard_sample.jpg", quality=90)
+    for name in ("pan_sharp", "pan_blurry", "ovd_sharp", "signboard_sample"):
         p = OUT_DIR / f"{name}.jpg"
         print(f"{p.name:16s} {p.stat().st_size // 1024:4d} KB   laplacian variance {laplacian_variance(Image.open(p)):9.1f}")
 

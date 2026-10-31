@@ -73,7 +73,15 @@ def log(merchant_id: str, actor: str, action: str, payload: Optional[dict] = Non
                     raise
                 continue
             session.refresh(entry)
+            _announce(entry)
             return entry
+
+
+def _announce(entry: AuditEntry) -> None:
+    """Tell live screens (activity feed, journey page) that the merchant's chain grew."""
+    from .events import publish
+    publish("audit", entry.merchant_id, {"id": entry.id, "actor": entry.actor, "action": entry.action,
+                                         "summary": entry.payload.get("summary")})
 
 
 def _verify_one(entries: list[AuditEntry]) -> Optional[int]:

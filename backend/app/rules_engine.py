@@ -150,14 +150,14 @@ def _load_ctx(m: Merchant, cfg: dict, session: Session) -> Ctx:
     )
 
 
-def evaluate(merchant_id: str, session: Optional[Session] = None) -> dict:
+def evaluate(merchant_id: str, session: Optional[Session] = None, *, write_audit: bool = True) -> dict:
     """-> {merchant_id, route, results: [{requirement, passed, evidence_ref, checked_at, detail}], compliant, review_reason}.
 
-    Writes one audit entry (actor "rules_engine") per call.
+    Writes one audit entry (actor "rules_engine") per call; write_audit=False is a read-only preview for screens.
     """
     if session is None:
         with Session(engine) as own:
-            return evaluate(merchant_id, own)
+            return evaluate(merchant_id, own, write_audit=write_audit)
 
     m = session.get(Merchant, merchant_id)
     if m is None:
@@ -179,6 +179,8 @@ def evaluate(merchant_id: str, session: Optional[Session] = None) -> dict:
     out = {"merchant_id": merchant_id, "route": route, "results": results,
            "compliant": compliant, "review_reason": review_reason}
 
+    if not write_audit:
+        return out
     audit.log(merchant_id, "rules_engine", "COMPLIANCE_EVALUATED", {
         "route": route, "compliant": compliant, "review_reason": review_reason,
         "results": [{k: r[k] for k in ("requirement", "passed", "evidence_ref")} for r in results],

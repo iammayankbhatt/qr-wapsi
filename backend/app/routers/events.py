@@ -7,7 +7,7 @@ from fastapi import APIRouter, Query, Request
 from fastapi.concurrency import run_in_threadpool
 from sqlalchemy import func
 from sqlmodel import Session, select
-from sse_starlette.sse import EventSourceResponse
+from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 
 from ..db import engine
 from ..models import Event
@@ -39,6 +39,9 @@ async def stream(request: Request, since: Optional[int] = None, merchant_id: Opt
 
     async def gen():
         nonlocal after
+        # Send something at once: proxies (e.g. Vite's dev proxy) hold back the response headers until the
+        # first body bytes, which would otherwise leave the browser "connecting" until the first ping.
+        yield ServerSentEvent(comment="connected", retry=2000)
         while not await request.is_disconnected():
             for e in await run_in_threadpool(_fetch, after, merchant_id):
                 after = e["id"]

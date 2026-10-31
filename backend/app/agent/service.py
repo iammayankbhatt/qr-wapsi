@@ -12,6 +12,7 @@ from sqlmodel import Session, select
 
 from ..config import settings
 from ..db import engine
+from ..events import publish
 from ..models import Journey
 
 log = logging.getLogger("qrwapsi.agent")
@@ -75,6 +76,13 @@ def snapshot(mid: str) -> dict:
             "waiting": _waiting(snap)}
 
 
+def _settled(mid: str) -> dict:
+    """The run stopped (waiting or finished): tell screens what the journey now waits for."""
+    snap = snapshot(mid)
+    publish("journey.state", mid, {"waiting": snap["waiting"], "status": snap["values"].get("status")})
+    return snap
+
+
 def start(mid: str) -> dict:
     """Start a journey, or continue one interrupted by a crash. Starting an active journey is a no-op."""
     g = get_graph()
@@ -84,7 +92,7 @@ def start(mid: str) -> dict:
             g.invoke({"merchant_id": mid}, _cfg(mid))
         elif snap.next and _waiting(snap) is None:
             g.invoke(None, _cfg(mid))  # a node failed mid-run (e.g. server stopped): retry it
-    return snapshot(mid)
+    return _settled(mid)
 
 
 def resume(mid: str, event: dict[str, Any], expect: str) -> dict:
@@ -96,7 +104,7 @@ def resume(mid: str, event: dict[str, Any], expect: str) -> dict:
             now = waiting.get("waiting_for") if waiting else "nothing"
             raise JourneyConflict(f"journey {mid} is not waiting for {expect} (waiting for {now})")
         g.invoke(Command(resume=event), _cfg(mid))
-    return snapshot(mid)
+    return _settled(mid)
 
 
 def tick_all() -> list[str]:

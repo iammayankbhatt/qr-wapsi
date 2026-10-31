@@ -2,6 +2,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlmodel import Session, select
 
 from .. import audit
@@ -9,7 +10,7 @@ from ..agent import service
 from ..config import settings
 from ..db import engine, get_session
 from ..integrations.whatsapp import WhatsAppClient
-from ..models import Journey, Merchant
+from ..models import Journey, Merchant, ReviewCase
 from ..rules_engine import determine_route
 from ..scoring import mule_risk, priority
 
@@ -39,6 +40,16 @@ def queue(limit: int = Query(50, ge=1, le=1000), session: Session = Depends(get_
         for i, (_, m, p) in enumerate(rows[:limit], start=1)
     ]
     return {"total": len(rows), "limit": limit, "items": items}
+
+
+@router.get("/stats")
+def stats(session: Session = Depends(get_session)):
+    """Live KPI counts by QR status, plus open review cases."""
+    counts = {s: 0 for s in ("PAUSED", "IN_PROGRESS", "LIVE", "ESCALATED")}
+    for status, n in session.exec(select(Merchant.qr_status, func.count()).group_by(Merchant.qr_status)):
+        counts[status] = n
+    open_cases = session.exec(select(func.count()).select_from(ReviewCase).where(ReviewCase.status == "OPEN")).one()
+    return {"qr_status": counts, "total": sum(counts.values()), "open_review_cases": open_cases}
 
 
 # ------------------------------------------------------------ journeys
