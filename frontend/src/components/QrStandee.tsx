@@ -47,6 +47,7 @@ export default function QrStandee({ merchantId, shopName, status }: { merchantId
         )}
       </div>
       <p className={`mt-3 text-lg font-bold ${live ? 'text-teal' : 'text-navy/40'}`}>{live ? '✓ Scan & pay — live' : 'Payments paused'}</p>
+      <p className="mt-1 text-xs text-navy/45">Illustrative QR · not scannable</p>
     </div>
   )
 }

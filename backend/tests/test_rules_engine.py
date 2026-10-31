@@ -7,7 +7,7 @@ from app.models import Document, ReviewCase, Visit
 from app.rules_engine import evaluate
 from tests.conftest import make_merchant
 
-PAN_FIELDS = {"name": "RAMESH SHARMA", "pan": "ABCPS1234K", "authority_verified": True}
+PAN_FIELDS = {"name": "RAMESH SHARMA", "pan": "ABCZS1234K", "authority_verified": True}
 
 
 def add_docs(s, mid, pan=True, ovd=True, name="RAMESH SHARMA", verified=True):

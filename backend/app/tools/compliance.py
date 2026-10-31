@@ -3,11 +3,11 @@ LLM or agent, can switch a QR back on unless rules_engine.evaluate() says compli
 from sqlmodel import Session, select
 
 from .. import audit, rules_engine, voice
-from ..agent.messages import soundbox_line
 from ..db import engine
 from ..events import publish
 from ..integrations.soundbox import SoundboxClient
 from ..models import Merchant, ReviewCase
+from ..phrases import soundbox_line
 
 
 def run_compliance(merchant_id: str) -> dict:

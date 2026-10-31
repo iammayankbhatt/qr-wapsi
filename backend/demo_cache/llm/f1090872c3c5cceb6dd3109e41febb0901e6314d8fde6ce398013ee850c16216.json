@@ -4,7 +4,7 @@
   "key": "f1090872c3c5cceb6dd3109e41febb0901e6314d8fde6ce398013ee850c16216",
   "response": {
     "action": "RUN_COMPLIANCE",
-    "reason": "Field visit is completed and all required documents are accepted.",
+    "reason": "Field visit complete and required documents accepted, proceeding to final compliance check.",
     "confidence": 1.0
   }
 }

@@ -32,6 +32,9 @@ def _merchant(mid: str) -> Merchant:
 
 
 def _set_qr_status(mid: str, status: str) -> None:
+    # LIVE is set only by tools.compliance.reactivate_qr, after the rules engine says compliant
+    if status == "LIVE":
+        raise ValueError("the agent never sets LIVE; reactivate_qr does, after rules_engine.evaluate()")
     with Session(engine) as s:
         m = s.get(Merchant, mid)
         if m.qr_status == status:

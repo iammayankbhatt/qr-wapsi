@@ -4,7 +4,7 @@
   "key": "5b2118293a259526bf615dc7c401951bc9a84446f318c7690d9b1e1a209140ef",
   "response": {
     "action": "REQUEST_DOCUMENT",
-    "reason": "PAN is accepted, OVD is still required from the merchant.",
+    "reason": "PAN is accepted, proceed to request the remaining required OVD document.",
     "confidence": 0.99
   }
 }

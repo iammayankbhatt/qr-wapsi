@@ -35,7 +35,7 @@ import logging  # noqa: E402
 from sqlmodel import Session  # noqa: E402
 
 from app import clock, voice  # noqa: E402
-from app.agent.messages import soundbox_line  # noqa: E402
+from app.phrases import soundbox_line  # noqa: E402
 from app.config import settings  # noqa: E402
 from app.db import engine, init_db  # noqa: E402
 from app.documents import FIXES  # noqa: E402

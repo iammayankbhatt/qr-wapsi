@@ -1,7 +1,19 @@
+# secrets
 .env
+
+# Python / Node
 venv/
 .venv/
 __pycache__/
+.pytest_cache/
 node_modules/
 dist/
-backend/data/*.db
+
+# runtime data (recreated by the app or by a demo reset)
+backend/data/*
+!backend/data/.gitkeep
+
+# keep backend/demo_cache/ committed: replay mode (offline demo) needs it
+
+# local backup videos (large)
+recordings/

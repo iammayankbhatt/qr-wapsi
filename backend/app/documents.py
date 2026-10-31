@@ -63,7 +63,7 @@ FIXES = {  # code -> (English fix, Hindi fix); {doc_en}/{doc_hi} are filled in
 
 # Offline fallback for the generated specimens only (scripts/make_specimens.py), matched by exact file hash.
 _SPECIMENS = {
-    "pan_sharp.jpg": dict(doc_type="PAN", name="RAMESH SHARMA", id_number="ABCPS1234K", readable=True, issues=[], confidence=0.97),
+    "pan_sharp.jpg": dict(doc_type="PAN", name="RAMESH SHARMA", id_number="ABCZS1234K", readable=True, issues=[], confidence=0.97),
     "pan_blurry.jpg": dict(doc_type="PAN", name=None, id_number=None, readable=False, issues=["blurry"], confidence=0.3),
     "ovd_sharp.jpg": dict(doc_type="OVD", name="RAMESH SHARMA", id_number="DEMO-0000-1234-5678", readable=True, issues=[], confidence=0.97),
 }

@@ -73,11 +73,11 @@ function DocumentCard({ d }: { d: DocumentRow }) {
         <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-base">
           {f.name && <><dt className="text-navy/55">Name read</dt><dd className="font-medium">{f.name}</dd></>}
           {f.id_number && <><dt className="text-navy/55">Number</dt><dd className="font-mono">{f.id_number}</dd></>}
-          {f.ckyc_id && <><dt className="text-navy/55">CKYC id</dt><dd className="font-mono">{f.ckyc_id}</dd></>}
+          {f.ckyc_id && <><dt className="text-navy/55">CKYC id</dt><dd className="font-mono">{f.ckyc_id} <span className="font-sans text-navy/45">(simulated registry)</span></dd></>}
           {f.confidence !== undefined && <><dt className="text-navy/55">Confidence</dt><dd>{Number(f.confidence).toFixed(2)} <span className="text-navy/45">({f.source})</span></dd></>}
           {d.quality_metrics.laplacian_var !== undefined && <><dt className="text-navy/55">Sharpness</dt><dd>{d.quality_metrics.laplacian_var} <span className="text-navy/45">(need ≥ 100)</span></dd></>}
           {f.name_match_score !== undefined && <><dt className="text-navy/55">Name match</dt><dd>{f.name_match_score}%</dd></>}
-          {f.authority_status && <><dt className="text-navy/55">Issuing authority</dt><dd className={f.authority_verified ? 'font-semibold text-teal' : 'text-paused'}>{f.authority_status}</dd></>}
+          {f.authority_status && <><dt className="text-navy/55">Issuing authority</dt><dd className={f.authority_verified ? 'font-semibold text-teal' : 'text-paused'}>{f.authority_status} <span className="font-normal text-navy/45">(simulated check)</span></dd></>}
         </dl>
       </div>
     </li>

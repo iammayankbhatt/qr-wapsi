@@ -77,7 +77,7 @@ EMPLOYEES = [
     ("E02", "Priya Nagar", "Sector 18, Noida", 28.5700, 77.3210),
     ("E03", "Sandeep Yadav", "Sector 50, Noida", 28.5700, 77.3600),
     ("E04", "Neha Tyagi", "Sector 62, Noida", 28.6270, 77.3650),
-    ("E05", "Imran Qureshi", "Sector 76, Noida", 28.5630, 77.3800),
+    ("E05", "Arif Siddiqui", "Sector 76, Noida", 28.5630, 77.3800),
     ("E06", "Vikram Rawat", "Sector 27, Noida", 28.5880, 77.3340),
 ]
 
@@ -124,13 +124,29 @@ def risk_from_histogram(hist: np.ndarray) -> tuple[float, float]:
     return round(spike, 3), round(night, 3)
 
 
+# Random first name + surname pairs that happen to be the name of a well-known public figure. They are renamed
+# (rare first name, same surname) without drawing from the RNG, so every other synthetic value stays the same.
+PUBLIC_FIGURE_NAMES = sorted({
+    "Sanjay Singh", "Manoj Tiwari", "Vijay Singh", "Harish Rawat", "Mukesh Khanna", "Dinesh Sharma", "Sanjay Gupta",
+    "Naveen Jain", "Manoj Kumar", "Ashok Kumar", "Rakesh Sharma", "Rajesh Khanna", "Imran Khan",
+})
+RARE_FIRST = ["Brijesh", "Omvir", "Satpal", "Hemraj", "Jaiveer", "Tejpal", "Ramkishan"]
+
+
+def _not_a_public_figure(first: str, sur: str) -> str:
+    owner = f"{first} {sur}"
+    if owner not in PUBLIC_FIGURE_NAMES:
+        return owner
+    return f"{RARE_FIRST[PUBLIC_FIGURE_NAMES.index(owner) % len(RARE_FIRST)]} {sur}"
+
+
 def make_name(rng, cat: str) -> tuple[str, str]:
     while True:
         female = rng.random() < 0.15
         first = str(rng.choice(FIRST_F if female else FIRST_M))
         sur = str(rng.choice(SURNAMES))
         shop = str(rng.choice(TEMPLATES[cat])).format(S=sur, A=str(rng.choice(AUSPICIOUS)))
-        owner = f"{first} {sur}"
+        owner = _not_a_public_figure(first, sur)
         if shop != "Sharma Kirana Store" and owner != "Ramesh Sharma":
             return shop, owner
 

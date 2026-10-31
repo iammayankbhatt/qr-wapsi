@@ -109,7 +109,8 @@ export default function SoundboxWidget({ merchantId, status }: { merchantId: str
     <div className="w-full" data-playback={playback ? `${playback.voice}:${playback.state}` : 'idle'}>
       <div className="relative mx-auto w-[360px] rounded-[2.5rem] bg-gradient-to-b from-[#1b2b55] to-navy p-6 text-white shadow-[0_24px_60px_rgba(14,27,61,0.35)]">
         <div className="flex items-center justify-between">
-          <span className="font-serif text-2xl font-bold">pay<span className="text-[#38b6ff]">tm</span> <span className="text-base font-normal text-white/60">Soundbox</span></span>
+          <span className="font-serif text-2xl font-bold">pay<span className="text-[#38b6ff]">tm</span> <span className="text-base font-normal text-white/60">Soundbox</span>
+            <span className="ml-2 rounded bg-white/15 px-1.5 py-0.5 align-middle font-sans text-[11px] font-semibold uppercase tracking-wider text-white/75">simulated</span></span>
           <span className="h-4 w-4 rounded-full shadow-[0_0_16px_currentColor]" style={{ backgroundColor: light.color, color: light.color }} />
         </div>
         <div className="relative mx-auto my-5 flex h-40 w-40 items-center justify-center rounded-full bg-black/40 ring-4 ring-white/10">

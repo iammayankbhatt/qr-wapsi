@@ -292,10 +292,10 @@ def test_propose_next_action_audits_under_the_state_merchant_id(fake, session):
 def test_extract_document_sends_the_image(fake, tmp_path):
     img = tmp_path / "pan.jpg"
     img.write_bytes(b"\xff\xd8\xff fake jpeg bytes")
-    fake.script = [json.dumps({"doc_type": "PAN", "name": "RAMESH SHARMA", "id_number": "ABCPS1234K",
+    fake.script = [json.dumps({"doc_type": "PAN", "name": "RAMESH SHARMA", "id_number": "ABCZS1234K",
                                "readable": True, "issues": [], "confidence": 0.99})]
     out = extract_document(img)
-    assert out.doc_type == "PAN" and out.id_number == "ABCPS1234K"
+    assert out.doc_type == "PAN" and out.id_number == "ABCZS1234K"
     contents = fake.calls[0][1]
     assert len(contents) == 2 and contents[1].inline_data.mime_type == "image/jpeg"
     assert contents[1].inline_data.data == img.read_bytes()

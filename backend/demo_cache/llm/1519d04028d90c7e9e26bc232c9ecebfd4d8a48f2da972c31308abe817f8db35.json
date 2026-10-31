@@ -4,7 +4,7 @@
   "key": "1519d04028d90c7e9e26bc232c9ecebfd4d8a48f2da972c31308abe817f8db35",
   "response": {
     "action": "SCHEDULE_VISIT",
-    "reason": "The human review approved the merchant, so the in-person shop visit must now be scheduled.",
+    "reason": "The human review approved the merchant, so the in-person visit must now be scheduled.",
     "confidence": 1.0
   }
 }

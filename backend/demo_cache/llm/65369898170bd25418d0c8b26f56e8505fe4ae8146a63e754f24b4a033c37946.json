@@ -4,7 +4,7 @@
   "key": "65369898170bd25418d0c8b26f56e8505fe4ae8146a63e754f24b4a033c37946",
   "response": {
     "action": "REQUEST_DOCUMENT",
-    "reason": "Merchant needs PAN document with no DigiLocker copy available, requiring a direct document request.",
+    "reason": "Merchant needs PAN and OVD with no DigiLocker copy available, initiating request for PAN first.",
     "confidence": 0.95
   }
 }

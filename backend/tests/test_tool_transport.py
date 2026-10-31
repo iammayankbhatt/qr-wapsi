@@ -26,7 +26,7 @@ def test_mcp_transport_lists_and_calls_tools(mcp_client):
     assert mcp_client.active == "mcp", mcp_client.mcp_error
     assert set(mcp_client.mcp_tools) == set(TOOLS)
     assert mcp_client.call("get_merchant_profile", merchant_id="M0001")["shop_name"] == "Sharma Kirana Store"
-    assert mcp_client.call("verify_pan", pan_number="ABCPS1234K", name="Ramesh Sharma")["valid"] is True
+    assert mcp_client.call("verify_pan", pan_number="ABCZS1234K", name="Ramesh Sharma")["valid"] is True
     assert mcp_client.call("find_visit_slot", merchant_id="M0001")["slot"].endswith("T15:10:00")
 
 

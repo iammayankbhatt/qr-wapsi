@@ -15,7 +15,7 @@ function Bubble({ m, merchantId }: { m: ChatMessage; merchantId: string }) {
   if (m.channel === 'IVR') {
     return (
       <div className="mx-auto my-2 max-w-[88%] rounded-xl bg-white/80 px-4 py-2 text-center shadow-sm">
-        <p className="text-[15px] font-semibold">📞 Call from Paytm (IVR) · answered</p>
+        <p className="text-[15px] font-semibold">📞 Simulated IVR call from Paytm · answered</p>
         <p className="text-[15px] text-navy/70">“{m.text_hi}”</p>
       </div>
     )

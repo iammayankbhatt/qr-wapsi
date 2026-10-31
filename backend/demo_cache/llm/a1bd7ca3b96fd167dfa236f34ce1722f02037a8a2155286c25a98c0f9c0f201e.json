@@ -4,7 +4,7 @@
   "key": "a1bd7ca3b96fd167dfa236f34ce1722f02037a8a2155286c25a98c0f9c0f201e",
   "response": {
     "action": "VERIFY_DOCUMENT",
-    "reason": "Merchant uploaded PAN photo, proceeding to verification",
-    "confidence": 0.95
+    "reason": "Merchant uploaded PAN photo, proceed with document verification.",
+    "confidence": 0.98
   }
 }

@@ -5,7 +5,7 @@ from ..rules_engine import load_config, name_match_score
 from . import simulate_latency
 
 # The only PAN on record is the fictional one printed on our specimen card (scripts/make_specimens.py).
-SPECIMEN_REGISTRY = {"ABCPS1234K": "RAMESH SHARMA"}
+SPECIMEN_REGISTRY = {"ABCZS1234K": "RAMESH SHARMA"}
 
 
 class PANVerificationClient:

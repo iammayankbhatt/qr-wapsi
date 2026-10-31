@@ -15,7 +15,8 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 OUT_DIR = Path(__file__).resolve().parent.parent / "demo_assets"
 W, H = 1000, 630
 NAME = "RAMESH SHARMA"
-PAN_NUMBER = "ABCPS1234K"  # fictional, matches ^[A-Z]{5}[0-9]{4}[A-Z]$
+PAN_NUMBER = "ABCZS1234K"  # matches ^[A-Z]{5}[0-9]{4}[A-Z]$, but can never be a real PAN: the 4th character
+                           # is the holder type (P = person, C = company, ...) and Z is not one the ITD issues
 WATERMARK = "SPECIMEN — DEMO ONLY"
 
 FONT_DIRS = ["C:/Windows/Fonts", "/usr/share/fonts/truetype/dejavu", "/Library/Fonts", "/System/Library/Fonts/Supplemental"]
