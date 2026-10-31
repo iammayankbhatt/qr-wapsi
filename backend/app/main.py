@@ -26,10 +26,25 @@ if settings.DEMO_MODE == "replay":
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    await run_in_threadpool(_seed_if_empty)  # hosted disks start empty (backend/data is not in git)
     await run_in_threadpool(get_tool_client)  # starts the MCP tool server once (falls back to direct)
     await run_in_threadpool(_warm_up)
     yield
     await run_in_threadpool(shutdown_tool_client)
+
+
+def _seed_if_empty() -> None:
+    from sqlmodel import Session, select
+
+    from .db import engine
+    from .models import Merchant
+
+    with Session(engine) as session:
+        if session.exec(select(Merchant).limit(1)).first() is not None:
+            return
+    from scripts.seed import reset_all
+    log.info("no merchants found: seeding synthetic demo data")
+    reset_all()
 
 
 def _warm_up() -> None:
@@ -50,7 +65,7 @@ app = FastAPI(title="QR Wapsi", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=settings.cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

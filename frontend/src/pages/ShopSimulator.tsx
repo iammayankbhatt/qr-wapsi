@@ -4,7 +4,7 @@ import PhoneFrame from '../components/PhoneFrame'
 import QrStandee from '../components/QrStandee'
 import SoundboxWidget from '../components/SoundboxWidget'
 import { Button, ErrorNote, Spinner } from '../components/ui'
-import { api, post, postForm } from '../lib/api'
+import { api, apiUrl, post, postForm } from '../lib/api'
 import { useLive } from '../lib/events'
 import { DOC_LABEL, stamp } from '../lib/format'
 import type { ChatMessage, JourneyView, Profile, Specimen } from '../lib/types'
@@ -25,7 +25,7 @@ function Bubble({ m, merchantId }: { m: ChatMessage; merchantId: string }) {
     <div className={`my-1.5 flex ${mine ? 'justify-end' : 'justify-start'}`}>
       <div className={`max-w-[84%] rounded-2xl px-3.5 py-2 shadow-sm ${mine ? 'rounded-tr-sm bg-[#D9FDD3]' : 'rounded-tl-sm bg-white'}`}>
         {m.attachment && (
-          <img src={`/api/merchants/${merchantId}/chat/${m.id}/attachment`} alt="sent photo" className="mb-1 w-56 rounded-lg" />
+          <img src={apiUrl(`/merchants/${merchantId}/chat/${m.id}/attachment`)} alt="sent photo" className="mb-1 w-56 rounded-lg" />
         )}
         {!(m.attachment && m.text_hi.startsWith('[')) && <p className="text-[19px] leading-snug">{m.text_hi}</p>}
         {m.text_en && <p className="mt-1 text-[13px] leading-snug text-navy/55">{m.text_en}</p>}

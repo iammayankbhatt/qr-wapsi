@@ -17,3 +17,7 @@ backend/data/*
 
 # local backup videos (large)
 recordings/
+
+.vercel
+.env*
+!.env.example

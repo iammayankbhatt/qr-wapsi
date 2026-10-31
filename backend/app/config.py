@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     DEMO_MODE: str = "live"  # live | record | replay
     TOOL_TRANSPORT: str = "mcp"  # mcp | direct
     SIM_LATENCY_MS: int = 80  # artificial latency of each mocked integration call (tests set 0)
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,https://qrwapsi.vercel.app"
 
     DATA_DIR: Path = BACKEND_DIR / "data"
     DEMO_CACHE_DIR: Path = BACKEND_DIR / "demo_cache"
@@ -30,6 +31,10 @@ class Settings(BaseSettings):
     @property
     def checkpoint_path(self) -> Path:
         return self.DATA_DIR / "checkpoints.db"
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
 
 settings = Settings()

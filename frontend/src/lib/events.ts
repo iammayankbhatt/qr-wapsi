@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { apiUrl } from './api'
 
 /** One shared EventSource on /api/events; every screen subscribes to it and refetches what it shows. */
 export interface LiveEvent {
@@ -28,7 +29,7 @@ function setConnected(up: boolean) {
 
 function ensureSource() {
   if (source) return
-  source = new EventSource('/api/events')
+  source = new EventSource(apiUrl('/events'))
   source.onopen = () => setConnected(true)
   source.onerror = () => setConnected(false) // EventSource reconnects by itself
   for (const t of TYPES) {

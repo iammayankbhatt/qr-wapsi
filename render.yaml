@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: qr-wapsi-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: DEMO_MODE
+        value: replay
+      - key: TOOL_TRANSPORT
+        value: direct
+      - key: CORS_ORIGINS
+        value: http://localhost:5173,https://qrwapsi.vercel.app

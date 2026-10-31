@@ -9,6 +9,14 @@ export class ApiError extends Error {
 /** Every failed call raises a friendly toast (see components/Toaster) and rejects with ApiError. */
 export const API_ERROR_EVENT = 'qrwapsi:api-error'
 
+// VITE_API_URL may be the server root or include the /api suffix; either way URLs end up as <root>/api/...
+const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '').replace(/\/api$/, '')
+
+/** Absolute-or-relative URL for an API path such as '/audio/x.wav' (for fetch, EventSource, <img>, Audio). */
+export function apiUrl(path: string): string {
+  return `${API_BASE}/api${path}`
+}
+
 function friendly(status: number, detail: string): string {
   if (status === 0) return "Can't reach the QR Wapsi server. Check that the backend is running."
   if (status === 404) return detail || 'Not found.'
@@ -25,7 +33,7 @@ function report(err: ApiError) {
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   let r: Response
   try {
-    r = await fetch(`/api${path}`, init)
+    r = await fetch(apiUrl(path), init)
   } catch {
     const err = new ApiError(0, friendly(0, ''))
     report(err)

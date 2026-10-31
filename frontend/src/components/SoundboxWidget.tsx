@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { api } from '../lib/api'
+import { api, apiUrl } from '../lib/api'
 import type { LiveEvent } from '../lib/events'
 import { useEvents } from '../lib/events'
 import { stamp } from '../lib/format'
@@ -71,7 +71,7 @@ export default function SoundboxWidget({ merchantId, status }: { merchantId: str
     a.onplaying = () => setPlayback({ clipId: c.id, voice: 'sarvam', state: 'playing' })
     a.onended = () => setPlayback({ clipId: c.id, voice: 'sarvam', state: 'played' })
     a.onerror = fallback
-    a.src = `/api/audio/${c.ref}.wav`
+    a.src = apiUrl(`/audio/${c.ref}.wav`)
     a.play().catch((err: DOMException) => (err.name === 'NotAllowedError' ? setEnabled(false) : fallback()))
   }
 
